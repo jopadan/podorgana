@@ -132,6 +132,7 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename)
 		return NULL;
 	}
 
+	fclose(file);
 	pod_file->checksum = pod_crc(pod_file->data);
 
 	size_t data_pos = 0;
@@ -154,7 +155,7 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename)
 		max_entry_index = pod_file->entries[max_entry_index].offset < pod_file->entries[i].offset ? i : max_entry_index;
 	}
 
-	pod_file->path_data = data_pos;
+	pod_file->path_data = pod_file->data + data_pos;
 	size_t max_path_len = strlen(pod_file->path_data[max_path_index]);
 	pod_file->path_data_size = (pod_file->path_data + pod_file->entries[max_path_index].path_offset + max_path_len) - 
 				(pod_file->path_data + pod_file->entries[min_entry_index].path_offset);
@@ -171,11 +172,20 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename)
 
 	pod_file->audit_trail = data_pos;
 
-	for(size_t i, i <  pod_file->header->audit_file_count; i++)
-	{
-		
-	}
 	return pod_file;
+}
+
+bool pod_file_pod2_destroy(pod_file_pod2_t* podfile)
+{
+	if(!podfile || !podfile->data)
+	{
+		fprintf(stderr, "ERROR: could not free podfile!\n");
+		return false;
+	}
+
+	free(podfile->data);
+	free(podfile);
+	return true;
 }
 
 pod_file_pod2_t* pod_open_pod2(pod_string_t* filename)
