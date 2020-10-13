@@ -5,39 +5,14 @@
 
 #include "pod_common.h"
 
-#define POD_HEADER_POD2_SIZE (POD_HEADER_IDENT_SIZE + \
-                              POD_HEADER_CHECKSUM_SIZE + \
-			      POD_HEADER_COMMENT_SIZE + \
-			      POD_HEADER_FILE_COUNT_SIZE + \
-			      POD_HEADER_AUDIT_FILE_COUNT_SIZE)
-
-
-/* 20 bytes */
-#define POD_DIR_ENTRY_POD2_SIZE (POD_DIR_ENTRY_PATH_OFFSET_SIZE + \
-                                 POD_DIR_ENTRY_SIZE_SIZE + \
-				 POD_DIR_ENTRY_OFFSET_SIZE + \
-				 POD_DIR_ENTRY_TIMESTAMP_SIZE + \
-				 POD_DIR_ENTRY_CHECKSUM_SIZE + \
-				 POD_DIR_ENTRY_FILENAME_SIZE)
-
-#define POD_DIR_ENTRY_POD2_FILENAME_SIZE     POD_DIR_ENTRY_FILENAME_SIZE
-
-#define POD_AUDIT_ENTRY_POD2_SIZE (POD_AUDIT_ENTRY_USER_SIZE + \
-				   POD_AUDIT_ENTRY_TIMESTAMP_SIZE + \
-				   POD_AUDIT_ENTRY_ACTION_SIZE + \
-				   POD_AUDIT_ENTRY_PATH_SIZE + \
-				   POD_AUDIT_ENTRY_DATA_SIZE)
-
-typedef struct pod_entry_pod2_s {
-
-} pod_entry_pod2_t;
-
-enum pod_audit_entry_pod2_action_e = {
+enum pod_audit_entry_pod2_action_t
+{
 	POD2_AUDIT_ACTION_ADD    = 0,
 	POD2_AUDIT_ACTION_REMOVE = 1,
 	POD2_AUDIT_ACTION_CHANGE = 2,
 	POD2_AUDIT_ACTION_SIZE   = 3,
-} pod_audit_entry_pod2_action_t;
+};
+typedef enum pod_audit_entry_pod2_action_t pod_audit_entry_pod2_action_t;
 
 /* POD2 header data structure */
 typedef struct pod_header_pod2_s
@@ -84,11 +59,11 @@ typedef struct pod_file_pod2_s
 	pod_number_t checksum;
 	pod_byte_t* data;
 	/* end of not serialized content */
-}
+} pod_file_pod2_t;
 
-bool_t is_pod2(restable_t * rt);
+bool is_pod2(char* ident);
 pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename);
-uint32_t pod_crc(pod_byte_t* data);
+uint32_t pod_crc(pod_byte_t* data, pod_size_t count);
 uint32_t pod_crc_pod2(pod_file_pod2_t* file);
 uint32_t pod_crc_pod2_entry(pod_file_pod2_t* file, pod_number_t entry_index);
 uint32_t pod_crc_pod2_audit(pod_file_pod2_t* file, pod_number_t audit_index);

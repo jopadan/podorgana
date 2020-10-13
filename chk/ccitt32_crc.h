@@ -82,7 +82,7 @@ uint32_t ccitt32_updcrc(uint32_t crcinit, unsigned char* data, size_t count)
 #define M2 0xffffff00
     register uint32_t crc = crcinit;
     register uint8_t *cp = data;
-    register size_t cnt = icnt;
+    register size_t cnt = count;
 
     while(cnt--) {
 	crc=((crc<<8)&M2)^crctab[((crc>>24)&0xff)^*cp++];

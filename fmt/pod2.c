@@ -21,10 +21,10 @@ uint32_t pod_crc_pod2(pod_file_pod2_t* file)
 		return 0;
 	}
 
-	return ccitt32_updcrc(0xFFFFFFFF, file->path_data, file->header->size);
+	return ccitt32_updcrc(0xFFFFFFFF, file->entry_data, file->entry_data_size);
 }
 
-uint32_t pod_crc_pod2_entry(pod_file_pod2_t* file, pod_number_t entry_index);
+uint32_t pod_crc_pod2_entry(pod_file_pod2_t* file, pod_number_t entry_index)
 {
 	if(file == NULL || file->entry_data == NULL)
 	{
