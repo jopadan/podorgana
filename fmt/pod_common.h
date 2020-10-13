@@ -4,8 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <math.h>
+#include <string.h>
+
 #include "chk/ccitt32_crc.h"
 
 enum pod_ident_type = { POD1 = 0, POD2, POD3, POD4, POD5, POD6, EPD, POD_IDENT_TYPE_SIZE, };
