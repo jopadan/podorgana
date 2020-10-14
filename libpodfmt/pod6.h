@@ -1,27 +1,28 @@
-#ifndef __POD6__
-#define __POD6__
+#ifndef _POD6_H
+#define _POD6_H
 
 #include "pod_common.h"
 
-bool_t is_pod6(restable_t * rt);
+/* POD6 header data structure */
+typedef struct pod_header_pod6_s
+{
+	pod_char_t ident[POD_HEADER_IDENT_SIZE];
+	pod_number_t file_count;
+	pod_number_t version;
+	pod_number_t index_offset;
+	pod_number_t size_index;
+} pod_header_pod6_t;
 
-#define POD6_SUBDIRS FALSE
-#define ROD6_MERGE FALSE
-#define POD6_META FALSE
-#define POD6_TIME FALSE
-#define PDO6_PAGE 1
+/* POD6 entry data structure */
+typedef struct pod6_entry_s {
+	pod_number_t path_offset; /* names = &(SEEK_SET + name_offset + header.names_offset] */
+	pod_number_t size;
+	pod_number_t offset;
+	pod_number_t uncompressed;
+	pod_number_t compression_level;
+	pod_number_t zero;
+} pod6_entry_t;
 
-bool_t pod6_read_dir(restable_t * rt);
-bool_t pod6_fill_filename(resentry_t * re);
-
-#define pod6_extract_resource rt_extract_resource
-
-#define pod6_save_meta rt_not_save_meta
-#define pod6_load_meta rt_not_load_meta
-
-bool_t pod6_fill_name(resentry_t * re);
-bool_t pod6_prepare_dir(restable_t * rt);
-bool_t pod6_add_resource(restable_t * rt, size_t i);
-bool_t pod6_write_dir(restable_t * rt);
+bool is_pod6(char* ident);
 
 #endif

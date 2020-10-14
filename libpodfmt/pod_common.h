@@ -12,7 +12,7 @@
 #include <string.h>
 #include <time.h>
 #include <assert.h>
-#include "../chk/ccitt32_crc.h"
+#include "ccitt32_crc.h"
 
 /* main variable type sizes of POD file formats                                                            */
 typedef uint32_t                             pod_number_t;
@@ -279,7 +279,7 @@ typedef struct pod_dir_entry_s {
 	pod_number_t file_timestamp;
 	pod_number_t file_checksum;
 } pod_dir_entry_t;
-
+*/
 char POD_IDENT[ POD_IDENT_TYPE_SIZE ][ POD_IDENT_SIZE + 1 ] = {
 	"\0POD1", "POD2\0", "POD3\0",
        	"POD4\0", "POD5\0", "POD6\0", "dtxe\0"
@@ -300,5 +300,5 @@ bool is_pod(char* ident)
 {
   return (POD_IDENT_TYPE_SIZE > pod_type(ident) >= 0);
 }
-*/
+
 #endif

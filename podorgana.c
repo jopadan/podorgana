@@ -1,4 +1,4 @@
-#include "fmt/pod2.h"
+#include "libpodfmt.h"
 
 bool print_usage(int argc, char** argv)
 {

@@ -1,27 +1,22 @@
-#ifndef __POD1__
-#define __POD1__
+#ifndef _POD1_H
+#define _POD1_H
 
 #include "pod_common.h"
 
-bool_t is_pod1(restable_t * rt);
+/* POD1 header data structure */
+typedef struct pod_header_pod1_s
+{
+	pod_number_t file_count;
+	pod_char_t comment[POD_HEADER_COMMENT_SIZE];
+} pod_header_pod1_t;
 
-#define POD1_SUBDIRS FALSE
-#define ROD1_MERGE FALSE
-#define POD1_META FALSE
-#define POD1_TIME FALSE
-#define PDO1_PAGE 1
+/* POD1 entry data structure */
+typedef struct pod1_entry_s {
+	pod_char_t name[POD_DIR_ENTRY_POD1_FILENAME_SIZE];
+	pod_number_t size;
+	pod_number_t offset;
+} pod1_entry_t;
 
-bool_t pod1_read_dir(restable_t * rt);
-bool_t pod1_fill_filename(resentry_t * re);
-
-#define pod1_extract_resource rt_extract_resource
-
-#define pod1_save_meta rt_not_save_meta
-#define pod1_load_meta rt_not_load_meta
-
-bool_t pod1_fill_name(resentry_t * re);
-bool_t pod1_prepare_dir(restable_t * rt);
-bool_t pod1_add_resource(restable_t * rt, size_t i);
-bool_t pod1_write_dir(restable_t * rt);
+bool is_pod1(char* ident);
 
 #endif

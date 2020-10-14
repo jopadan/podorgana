@@ -1,27 +1,37 @@
-#ifndef __POD3__
-#define __POD3__
+#ifndef _POD3_H
+#define _POD3_H
 
 #include "pod_common.h"
 
-bool_t is_pod3(restable_t * rt);
+/* POD3 header data structure */
+typedef struct pod_header_pod3_s
+{
+	pod_char_t ident[POD_HEADER_IDENT_SIZE];
+	pod_number_t checksum;
+	pod_char_t comment[POD_HEADER_COMMENT_SIZE];
+	pod_number_t file_count;
+	pod_number_t audit_file_count;
+	pod_number_t revision;
+	pod_number_t priority;
+	pod_char_t author[POD_HEADER_AUTHOR_SIZE];
+	pod_char_t copyright[POD_HEADER_COPYRIGHT_SIZE];
+	pod_number_t index_offset;
+	pod_number_t unknown10c;
+	pod_number_t size_index;
+	pod_number_t unknown114;
+	pod_number_t unknown118;
+	pod_number_t unknown11C;
+} pod_header_pod3_t;
 
-#define POD3_SUBDIRS FALSE
-#define ROD3_MERGE FALSE
-#define POD3_META FALSE
-#define POD3_TIME FALSE
-#define PDO3_PAGE 1
+/* POD3 entry data structure */
+typedef struct pod3_entry_s {
+	pod_number_t path_offset;
+	pod_number_t size;
+	pod_number_t offset;
+	pod_number_t timestamp;
+	pod_number_t checksum;
+} pod3_entry_t;
 
-bool_t pod3_read_dir(restable_t * rt);
-bool_t pod3_fill_filename(resentry_t * re);
-
-#define pod3_extract_resource rt_extract_resource
-
-#define pod3_save_meta rt_not_save_meta
-#define pod3_load_meta rt_not_load_meta
-
-bool_t pod3_fill_name(resentry_t * re);
-bool_t pod3_prepare_dir(restable_t * rt);
-bool_t pod3_add_resource(restable_t * rt, size_t i);
-bool_t pod3_write_dir(restable_t * rt);
+bool is_pod3(char* ident);
 
 #endif

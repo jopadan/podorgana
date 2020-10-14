@@ -1,27 +1,40 @@
-#ifndef __POD5__
-#define __POD5__
+#ifndef _POD5_H
+#define _POD5_H
 
 #include "pod_common.h"
 
-bool_t is_pod5(restable_t * rt);
+/* POD5 header data structure */
+typedef struct pod_header_pod5_s
+{
+	pod_char_t ident[POD_HEADER_IDENT_SIZE];
+	pod_number_t checksum;
+	pod_char_t comment[POD_HEADER_COMMENT_SIZE];
+	pod_number_t file_count;
+	pod_number_t audit_file_count;
+	pod_number_t revision;
+	pod_number_t priority;
+	pod_char_t author[POD_HEADER_AUTHOR_SIZE];
+	pod_char_t copyright[POD_HEADER_COPYRIGHT_SIZE];
+	pod_number_t index_offset;
+	pod_number_t unknown10c;
+	pod_number_t size_index;
+	pod_number_t unknown114;
+	pod_number_t unknown118;
+	pod_number_t unknown11C;
+	pod_char_t next_archive[POD_HEADER_NEXT_ARCHIVE_SIZE];
+} pod_header_pod5_t;
 
-#define POD5_SUBDIRS FALSE
-#define ROD5_MERGE FALSE
-#define POD5_META FALSE
-#define POD5_TIME FALSE
-#define PDO5_PAGE 1
+/* POD5 entry data structure */
+typedef struct pod5_entry_s {
+	pod_number_t path_offset;
+	pod_number_t size;
+	pod_number_t offset;
+	pod_number_t uncompressed;
+	pod_number_t compression_level;
+	pod_number_t timestamp;
+	pod_number_t checksum;
+} pod5_entry_t;
 
-bool_t pod5_read_dir(restable_t * rt);
-bool_t pod5_fill_filename(resentry_t * re);
-
-#define pod5_extract_resource rt_extract_resource
-
-#define pod5_save_meta rt_not_save_meta
-#define pod5_load_meta rt_not_load_meta
-
-bool_t pod5_fill_name(resentry_t * re);
-bool_t pod5_prepare_dir(restable_t * rt);
-bool_t pod5_add_resource(restable_t * rt, size_t i);
-bool_t pod5_write_dir(restable_t * rt);
+bool is_pod5(char* ident);
 
 #endif

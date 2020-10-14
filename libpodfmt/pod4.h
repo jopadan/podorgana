@@ -1,27 +1,40 @@
-#ifndef __POD4__
-#define __POD4__
+#ifndef _POD4_H
+#define _POD4_H
 
 #include "pod_common.h"
 
-bool_t is_pod4(restable_t * rt);
+/* POD4 header data structure */
+typedef struct pod_header_pod4_s
+{
+	pod_char_t ident[POD_HEADER_IDENT_SIZE];
+	pod_number_t checksum;
+	pod_char_t comment[POD_HEADER_COMMENT_SIZE];
+	pod_number_t file_count;
+	pod_number_t audit_file_count;
+	pod_number_t revision;
+	pod_number_t priority;
+	pod_char_t author[POD_HEADER_AUTHOR_SIZE];
+	pod_char_t copyright[POD_HEADER_COPYRIGHT_SIZE];
+	pod_number_t index_offset;
+	pod_number_t unknown10c;
+	pod_number_t size_index;
+	pod_number_t unknown114;
+	pod_number_t unknown118;
+	pod_number_t unknown11C;
+} pod_header_pod4_t;
 
-#define POD4_SUBDIRS FALSE
-#define ROD4_MERGE FALSE
-#define POD4_META FALSE
-#define POD4_TIME FALSE
-#define PDO4_PAGE 1
+/* POD4 entry data structure */
+typedef struct pod4_entry_s {
+	pod_number_t path_offset;
+	pod_number_t size;
+	pod_number_t offset;
+	pod_number_t uncompressed;
+	pod_number_t compression_level;
+	pod_number_t timestamp;
+	pod_number_t checksum;
+} pod4_entry_t;
 
-bool_t pod4_read_dir(restable_t * rt);
-bool_t pod4_fill_filename(resentry_t * re);
 
-#define pod4_extract_resource rt_extract_resource
-
-#define pod4_save_meta rt_not_save_meta
-#define pod4_load_meta rt_not_load_meta
-
-bool_t pod4_fill_name(resentry_t * re);
-bool_t pod4_prepare_dir(restable_t * rt);
-bool_t pod4_add_resource(restable_t * rt, size_t i);
-bool_t pod4_write_dir(restable_t * rt);
+bool is_pod4(char* ident);
 
 #endif
