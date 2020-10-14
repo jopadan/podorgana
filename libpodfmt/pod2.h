@@ -1,7 +1,5 @@
-#ifndef __POD2__
-#define __POD2__
-#include <sys/types.h>
-#include <sys/stat.h>
+#ifndef _POD2_H
+#define _POD2_H
 
 #include "pod_common.h"
 

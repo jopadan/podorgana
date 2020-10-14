@@ -1,5 +1,5 @@
-#ifndef __POD_COMMON__
-#define __POD_COMMON__
+#ifndef _POD_COMMON_H
+#define _POD_COMMON_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,8 +11,8 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
+#include <assert.h>
 #include "../chk/ccitt32_crc.h"
-
 
 /* main variable type sizes of POD file formats                                                            */
 typedef uint32_t                             pod_number_t;
@@ -59,11 +59,6 @@ typedef enum pod_ident_type_t pod_ident_type_t;
 #define POD_IDENT_SIZE                       (POD_STRING_4)           /* file magic ident length        */
 #define POD_IDENT_TYPE_SIZE                  (EPD + 1)                     /* number of POD format types     */
 
-/* map pod ident type enum id to file magic ident null terminated string */
-char POD_IDENT[ POD_IDENT_TYPE_SIZE ][ POD_IDENT_SIZE + 1 ] = {
-	"\0POD1", "POD2\0", "POD3\0",
-       	"POD4\0", "POD5\0", "POD6\0", "dtxe\0"
-};
 
 
 /* pod_header_t element sizes */
@@ -251,7 +246,7 @@ char POD_IDENT[ POD_IDENT_TYPE_SIZE ][ POD_IDENT_SIZE + 1 ] = {
 				POD_DIR_ENTRY_CHECKSUM_SIZE) 
 
 #define POD_DIR_ENTRY_EPD_FILENAME_SIZE      POD_STRING_64
-
+/*
 const ssize_t POD_HEADER_SIZE[POD_IDENT_TYPE_SIZE] =
 {
 	POD_HEADER_POD1_SIZE,
@@ -285,6 +280,11 @@ typedef struct pod_dir_entry_s {
 	pod_number_t file_checksum;
 } pod_dir_entry_t;
 
+char POD_IDENT[ POD_IDENT_TYPE_SIZE ][ POD_IDENT_SIZE + 1 ] = {
+	"\0POD1", "POD2\0", "POD3\0",
+       	"POD4\0", "POD5\0", "POD6\0", "dtxe\0"
+};
+
 int pod_type(char* ident)
 {
 	for(int i = 0; i < POD_IDENT_TYPE_SIZE; i++)
@@ -300,5 +300,5 @@ bool is_pod(char* ident)
 {
   return (POD_IDENT_TYPE_SIZE > pod_type(ident) >= 0);
 }
-
+*/
 #endif
