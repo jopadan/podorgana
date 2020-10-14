@@ -1,8 +1,6 @@
 #ifndef _POD2_H
 #define _POD2_H
 
-#include "pod_common.h"
-
 enum pod_audit_entry_pod2_action_t
 {
 	POD2_AUDIT_ACTION_ADD    = 0,

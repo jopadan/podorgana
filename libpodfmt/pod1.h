@@ -1,8 +1,6 @@
 #ifndef _POD1_H
 #define _POD1_H
 
-#include "pod_common.h"
-
 /* POD1 header data structure */
 typedef struct pod_header_pod1_s
 {

@@ -1,8 +1,6 @@
 #ifndef _POD5_H
 #define _POD5_H
 
-#include "pod_common.h"
-
 /* POD5 header data structure */
 typedef struct pod_header_pod5_s
 {

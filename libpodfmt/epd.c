@@ -1,3 +1,4 @@
+#include "pod_common.h"
 #include "epd.h"
 
 bool is_epd(char* ident)

@@ -1,3 +1,4 @@
+#include "pod_common.h"
 #include "pod5.h"
 
 bool is_pod5(char* ident)

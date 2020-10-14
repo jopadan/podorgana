@@ -1,5 +1,6 @@
-#include "pod2.h"
 #include <assert.h>
+#include "pod_common.h"
+#include "pod2.h"
 
 uint32_t pod_crc(pod_byte_t* data, pod_size_t count)
 {

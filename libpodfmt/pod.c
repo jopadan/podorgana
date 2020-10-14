@@ -78,18 +78,6 @@ bool_t pod_dir_entry_write(FILE* file, pod_dir_entry_t* src, int pod_type)
 
 	return FALSE;
 }
-pod_char_t* pod_type_to_file_ext(int pod_type)
-{
-	switch(pod_type)
-	{
-		case EPD:
-			return "EPD";
-		default:
-			return "POD";
-	}
-
-	return FALSE;
-}
 
 bool_t resentry_to_pod_dir_entry(pod_dir_entry_t* dst, resentry_t *res)
 {
