@@ -121,9 +121,10 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename)
 	pod_file->entry_data_size = (pod_file->path_data + pod_file->entries[max_entry_index].offset + max_entry_len) - 
 				 (pod_file->path_data + pod_file->entries[min_entry_index].offset);
 
-	pod_file->entry_data = pod_file->path_data + pod_file->entries[min_entry_index].offset;
+	pod_file->entry_data = pod_file->path_data + pod_file->entries[max_path_index].path_offset + max_path_len;
 
 	assert((pod_byte_t*)(pod_file->path_data + pod_file->entries[max_path_index].path_offset + max_path_len) == (pod_byte_t*)pod_file->entry_data);
+
 
 	data_pos += pod_file->path_data_size + pod_file->entry_data_size;
 
