@@ -28,15 +28,19 @@ const ssize_t POD_DIR_ENTRY_SIZE[POD_IDENT_TYPE_SIZE] =
 };
 
 
-int pod_type(char* ident)
+pod_ident_type_t pod_type(char* ident)
 {
 	for(int i = 0; i < POD_IDENT_TYPE_SIZE; i++)
 	{
-		const char * pod_ident = &POD_IDENT[i][0];
-		if (strncmp(ident, pod_ident, strlen(pod_ident)) == 0)
+		if (strncmp(ident, POD_IDENT[i], POD_IDENT_SIZE) == 0)
 			return i;
 	}
   	return POD1;
+}
+
+const char* pod_type_str(pod_ident_type_t type)
+{
+	return POD_IDENT[type];
 }
 
 bool is_pod(char* ident)

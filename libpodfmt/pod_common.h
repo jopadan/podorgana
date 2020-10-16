@@ -248,9 +248,10 @@ typedef enum pod_ident_type_t pod_ident_type_t;
 
 extern const char POD_IDENT[ POD_IDENT_TYPE_SIZE ][ POD_IDENT_SIZE + 1 ];
 
-extern int pod_type(char* ident);
+extern pod_ident_type_t pod_type(char* ident);
 extern bool is_pod(char* ident);
 extern pod_string_t pod_type_to_file_ext(int pod_type);
+extern const char* pod_type_str(pod_ident_type_t type);
 
 extern const ssize_t POD_DIR_ENTRY_SIZE[POD_IDENT_TYPE_SIZE];
 extern const ssize_t POD_HEADER_SIZE[POD_IDENT_TYPE_SIZE];

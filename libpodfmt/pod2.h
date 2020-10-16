@@ -51,6 +51,7 @@ typedef struct pod_file_pod2_s
 	pod_size_t path_data_size;
 	pod_size_t entry_data_size;
 
+	pod_string_t filename;
 	pod_size_t size;
 	pod_number_t checksum;
 	pod_byte_t* data;
@@ -63,6 +64,7 @@ uint32_t pod_crc(pod_byte_t* data, pod_size_t count);
 uint32_t pod_crc_pod2(pod_file_pod2_t* file);
 uint32_t pod_crc_pod2_entry(pod_file_pod2_t* file, pod_number_t entry_index);
 uint32_t pod_crc_pod2_audit(pod_file_pod2_t* file, pod_number_t audit_index);
+bool pod_file_pod2_destroy(pod_file_pod2_t* podfile);
 
 
 #endif
