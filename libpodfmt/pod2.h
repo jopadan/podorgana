@@ -59,12 +59,12 @@ typedef struct pod_file_pod2_s
 } pod_file_pod2_t;
 
 bool is_pod2(char* ident);
-pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename);
 uint32_t pod_crc(pod_byte_t* data, pod_size_t count);
 uint32_t pod_crc_pod2(pod_file_pod2_t* file);
 uint32_t pod_crc_pod2_entry(pod_file_pod2_t* file, pod_number_t entry_index);
 uint32_t pod_crc_pod2_audit(pod_file_pod2_t* file, pod_number_t audit_index);
+pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename);
 bool pod_file_pod2_destroy(pod_file_pod2_t* podfile);
-
+bool pod_file_pod2_print(pod_file_pod2_t* podfile);
 
 #endif

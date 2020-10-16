@@ -47,8 +47,13 @@ bool pod_file_pod2_print(pod_file_pod2_t* podfile)
 		fprintf(stderr, "ERROR: pod_file_pod2_print() podfile == NULL\n");
 		return false;
 	}
-	fprintf(stdout,"Checksum: %u/%u Size: %u\n", pod_crc_pod2_entry(pod2, 0), pod2->entries[0].checksum, pod2->entries[0].size);
-	fprintf(stdout,"Filename: %s\nPOD Format: %s\nChecksum: %u\nChecksum header entry: %u\nSize: %u\nComment: %s\nFile Entries: %u\nAudit Entries: %u\n", podfile->filename, pod_type_str(pod_type(podfile->header->ident)), podfile->checksum, podfile->header->checksum, podfile->size, podfile->header->comment, podfile->header->file_count, podfile->header->audit_file_count);
+	for(pod_number_t i = 0; i < podfile->header->file_count; i++)
+	{
+		pod_entry_pod2_t* entry = &podfile->entries[i];
+		pod_char_t* name = podfile->path_data + podfile->entries[i].path_offset;
+		printf("entry: %u name: %s path_offset %u size: %u offset: %u timestamp: %u recorded checksum: %u calculated checksum: %u\n", i, name, entry->path_offset, entry->size, entry->offset, entry->timestamp, entry->checksum, 0);
+	}
+	fprintf(stdout,"filename           : %s\nformat             : %s\ncomment            : %s\ncalculated checksum: %u\nrecorded checksum  : %u\nsize               : %u\nfile entries       : %u\naudit entries      : %u\n", podfile->filename, pod_type_str(pod_type(podfile->header->ident)), podfile->header->comment, podfile->checksum, podfile->header->checksum, podfile->size, podfile->header->file_count, podfile->header->audit_file_count);
 	return true;
 }
 
@@ -110,9 +115,9 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename)
 
 	size_t data_pos = 0;
 	pod_file->header = (pod_header_pod2_t*)pod_file->data;
-	data_pos += POD_HEADER_POD2_SIZE;
-	pod_file->entries = (pod_byte_t*)(pod_file->data + data_pos);
-	data_pos += pod_file->header->file_count * POD_DIR_ENTRY_POD2_SIZE;
+	data_pos += sizeof(pod_header_pod2_t);
+	pod_file->entries = (pod_entry_pod2_t*)(pod_file->data + data_pos);
+	data_pos += pod_file->header->file_count * sizeof(pod_entry_pod2_t);
 
 	pod_number_t min_path_index = 0;
 	pod_number_t max_path_index = 0;
@@ -140,8 +145,9 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename)
 	}
 
 
-	pod_file->path_data = pod_file->data + data_pos;
+	pod_file->path_data = (pod_char_t*) (pod_file->data + data_pos);
 	size_t max_path_len = strlen(pod_file->path_data + pod_file->entries[max_path_index].path_offset);
+
 	pod_file->path_data_size = (pod_file->path_data + pod_file->entries[max_path_index].path_offset + max_path_len) - 
 				(pod_file->path_data + pod_file->entries[min_entry_index].path_offset);
 
