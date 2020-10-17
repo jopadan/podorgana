@@ -20,7 +20,7 @@ uint32_t pod_crc_pod2(pod_file_pod2_t* file)
 		return 0;
 	}
 
-	return ccitt32_updcrc(0xFFFFFFFF, file->data , file->size);
+	return ccitt32_updcrc(0xFFFFFFFF, file->data + sizeof(pod_header_pod2_t) , file->size);
 }
 
 uint32_t pod_crc_pod2_entry(pod_file_pod2_t* file, pod_number_t entry_index)
@@ -31,7 +31,7 @@ uint32_t pod_crc_pod2_entry(pod_file_pod2_t* file, pod_number_t entry_index)
 		return 0;
 	}
 
-	return ccitt32_updcrc(0xFFFFFFFF, file->path_data + file->entries[entry_index].offset, file->entries[entry_index].size);
+	return ccitt32_updcrc(0xFFFFFFFF, (pod_byte_t*)file->data + file->entries[entry_index].offset, file->entries[entry_index].size);
 }
  
 
@@ -51,7 +51,7 @@ bool pod_file_pod2_print(pod_file_pod2_t* podfile)
 	{
 		pod_entry_pod2_t* entry = &podfile->entries[i];
 		pod_char_t* name = podfile->path_data + podfile->entries[i].path_offset;
-		printf("entry: %u name: %s path_offset %u size: %u offset: %u timestamp: %u recorded checksum: %u calculated checksum: %u\n", i, name, entry->path_offset, entry->size, entry->offset, entry->timestamp, entry->checksum, 0);
+		printf("entry: %u name: %s path_offset %u size: %u offset: %u timestamp: %u recorded checksum: %u calculated checksum: %u\n", i, name, entry->path_offset, entry->size, entry->offset, entry->timestamp, entry->checksum, pod_crc_pod2_entry(podfile, i));
 	}
 	fprintf(stdout,"filename           : %s\nformat             : %s\ncomment            : %s\ncalculated checksum: %u\nrecorded checksum  : %u\nsize               : %u\nfile entries       : %u\naudit entries      : %u\n", podfile->filename, pod_type_str(pod_type(podfile->header->ident)), podfile->header->comment, podfile->checksum, podfile->header->checksum, podfile->size, podfile->header->file_count, podfile->header->audit_file_count);
 	return true;
