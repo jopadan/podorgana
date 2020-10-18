@@ -44,7 +44,7 @@ enum pod_string_size_t
 };
 typedef enum pod_string_size_t pod_string_size_t;
 
-#define POD_COMMENT_SIZE                     POD_STRING_48                 /* comment length of POD format   */
+#define POD_COMMENT_SIZE                     POD_STRING_80                 /* comment length of POD format   */
 #define EPD_COMMENT_SIZE                     (POD_BYTE_SIZE + 1)           /* comment length of EPD format   */
 
 enum pod_ident_type_t
@@ -55,8 +55,8 @@ enum pod_ident_type_t
 };
 typedef enum pod_ident_type_t pod_ident_type_t;
 
-#define POD_IDENT_SIZE                       (POD_STRING_4)           /* file magic ident length        */
-#define POD_IDENT_TYPE_SIZE                  (EPD + 1)                     /* number of POD format types     */
+#define POD_IDENT_SIZE                       POD_STRING_4             /* file magic ident length        */
+#define POD_IDENT_TYPE_SIZE                  (EPD + 1)                /* number of POD format types     */
 
 
 
@@ -87,7 +87,7 @@ typedef enum pod_ident_type_t pod_ident_type_t;
 #define POD_DIR_ENTRY_SIZE_SIZE              POD_DIR_ENTRY_NUMBER_SIZE
 #define POD_DIR_ENTRY_OFFSET_SIZE            POD_DIR_ENTRY_NUMBER_SIZE
 #define POD_DIR_ENTRY_PATH_OFFSET_SIZE       POD_DIR_ENTRY_NUMBER_SIZE
-#define POD_DIR_ENTRY_UNCOMPRESSED_SIZE        POD_DIR_ENTRY_NUMBER_SIZE
+#define POD_DIR_ENTRY_UNCOMPRESSED_SIZE      POD_DIR_ENTRY_NUMBER_SIZE
 #define POD_DIR_ENTRY_COMPRESSION_LEVEL_SIZE POD_DIR_ENTRY_NUMBER_SIZE
 #define POD_DIR_ENTRY_TIMESTAMP_SIZE         POD_DIR_ENTRY_NUMBER_SIZE
 #define POD_DIR_ENTRY_CHECKSUM_SIZE          POD_DIR_ENTRY_NUMBER_SIZE
@@ -122,16 +122,15 @@ typedef enum pod_ident_type_t pod_ident_type_t;
                                  POD_DIR_ENTRY_SIZE_SIZE + \
 				 POD_DIR_ENTRY_OFFSET_SIZE + \
 				 POD_DIR_ENTRY_TIMESTAMP_SIZE + \
-				 POD_DIR_ENTRY_CHECKSUM_SIZE + \
-				 POD_DIR_ENTRY_FILENAME_SIZE)
+				 POD_DIR_ENTRY_CHECKSUM_SIZE)
 
 #define POD_DIR_ENTRY_POD2_FILENAME_SIZE     POD_DIR_ENTRY_FILENAME_SIZE
-
 #define POD_AUDIT_ENTRY_POD2_SIZE (POD_AUDIT_ENTRY_USER_SIZE + \
 				   POD_AUDIT_ENTRY_TIMESTAMP_SIZE + \
 				   POD_AUDIT_ENTRY_ACTION_SIZE + \
 				   POD_AUDIT_ENTRY_PATH_SIZE + \
 				   POD_AUDIT_ENTRY_DATA_SIZE)
+		            
 /* POD3 header sizes*/
 #define POD_HEADER_POD3_SIZE (POD_HEADER_IDENT_SIZE + \
                               POD_HEADER_CHECKSUM_SIZE + \

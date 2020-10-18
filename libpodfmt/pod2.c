@@ -20,7 +20,7 @@ uint32_t pod_crc_pod2(pod_file_pod2_t* file)
 		return 0;
 	}
 
-	return ccitt32_updcrc(0xFFFFFFFF, file->data + sizeof(pod_header_pod2_t) , file->size);
+	return ccitt32_updcrc(0xFFFFFFFF, file->data + POD_IDENT_SIZE + POD_HEADER_CHECKSUM_SIZE, file->size - POD_IDENT_SIZE - POD_HEADER_CHECKSUM_SIZE);
 }
 
 uint32_t pod_crc_pod2_entry(pod_file_pod2_t* file, pod_number_t entry_index)
@@ -31,7 +31,7 @@ uint32_t pod_crc_pod2_entry(pod_file_pod2_t* file, pod_number_t entry_index)
 		return 0;
 	}
 
-	return ccitt32_updcrc(0xFFFFFFFF, (pod_byte_t*)file->data + file->entries[entry_index].offset, file->entries[entry_index].size);
+	return ccitt32_updcrc(0xFFFFFFFF, file->data + file->entries[entry_index].offset, file->entries[entry_index].size);
 }
  
 
@@ -53,7 +53,7 @@ bool pod_file_pod2_print(pod_file_pod2_t* podfile)
 		pod_char_t* name = podfile->path_data + podfile->entries[i].path_offset;
 		printf("entry: %u name: %s path_offset %u size: %u offset: %u timestamp: %u recorded checksum: %u calculated checksum: %u\n", i, name, entry->path_offset, entry->size, entry->offset, entry->timestamp, entry->checksum, pod_crc_pod2_entry(podfile, i));
 	}
-	fprintf(stdout,"filename           : %s\nformat             : %s\ncomment            : %s\ncalculated checksum: %u\nrecorded checksum  : %u\nsize               : %u\nfile entries       : %u\naudit entries      : %u\n", podfile->filename, pod_type_str(pod_type(podfile->header->ident)), podfile->header->comment, podfile->checksum, podfile->header->checksum, podfile->size, podfile->header->file_count, podfile->header->audit_file_count);
+	fprintf(stdout,"filename           : %s\nformat             : %s\ncomment            : %s\nrecorded checksum  : %u\ncalculated checksum: %u\nfile checksum      : %u\nsize               : %u\nfile entries       : %u\naudit entries      : %u\n", podfile->filename, pod_type_str(pod_type(podfile->header->ident)), podfile->header->comment, podfile->header->checksum, pod_crc_pod2(podfile), podfile->checksum, podfile->size, podfile->header->file_count, podfile->header->audit_file_count);
 	return true;
 }
 
@@ -102,7 +102,7 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename)
 		return NULL;
 	}
 
-	if(fread(pod_file->data, sizeof(pod_byte_t), pod_file->size, file) != pod_file->size * sizeof(pod_byte_t))
+	if(fread(pod_file->data, POD_BYTE_SIZE, pod_file->size, file) != pod_file->size * POD_BYTE_SIZE)
 	{
 		fprintf(stderr, "ERROR: Could not read file %s!\n");
 		fclose(file);
@@ -115,9 +115,9 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename)
 
 	size_t data_pos = 0;
 	pod_file->header = (pod_header_pod2_t*)pod_file->data;
-	data_pos += sizeof(pod_header_pod2_t);
+	data_pos += POD_HEADER_POD2_SIZE;
 	pod_file->entries = (pod_entry_pod2_t*)(pod_file->data + data_pos);
-	data_pos += pod_file->header->file_count * sizeof(pod_entry_pod2_t);
+	data_pos += pod_file->header->file_count * POD_DIR_ENTRY_POD2_SIZE;
 
 	pod_number_t min_path_index = 0;
 	pod_number_t max_path_index = 0;

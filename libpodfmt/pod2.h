@@ -13,9 +13,9 @@ typedef enum pod_audit_entry_pod2_action_t pod_audit_entry_pod2_action_t;
 /* POD2 header data structure */
 typedef struct pod_header_pod2_s
 {
-	pod_char_t ident[POD_STRING_4];
+	pod_char_t ident[POD_IDENT_SIZE];
 	pod_number_t checksum;
-	pod_char_t comment[POD_STRING_80];
+	pod_char_t comment[POD_COMMENT_SIZE];
 	pod_number_t file_count;
 	pod_number_t audit_file_count;
 } pod_header_pod2_t;
