@@ -146,19 +146,99 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename)
 
 
 	pod_file->path_data = (pod_char_t*) (pod_file->data + data_pos);
-	size_t max_path_len = strlen(pod_file->path_data + pod_file->entries[max_path_index].path_offset);
+	size_t max_path_len = strlen(pod_file->path_data + pod_file->entries[max_path_index].path_offset) + 1;
 
 	pod_file->path_data_size = (pod_file->path_data + pod_file->entries[max_path_index].path_offset + max_path_len) - 
 				(pod_file->path_data + pod_file->entries[min_entry_index].path_offset);
 
 	size_t max_entry_len = pod_file->entries[max_entry_index].size;
-	pod_file->entry_data_size = (pod_file->path_data + pod_file->entries[max_entry_index].offset + max_entry_len) - 
-				 (pod_file->path_data + pod_file->entries[min_entry_index].offset);
+	pod_file->entry_data_size = (pod_file->data + pod_file->entries[max_entry_index].offset + max_entry_len) - 
+				 (pod_file->data + pod_file->entries[min_entry_index].offset);
 
-	pod_file->entry_data = pod_file->path_data + pod_file->entries[min_entry_index].offset;
+	pod_file->entry_data = pod_file->data + pod_file->entries[min_entry_index].offset;
 
 	data_pos += pod_file->path_data_size + pod_file->entry_data_size;
 
-	pod_file->audit_trail = (pod_audit_entry_pod2_t*) pod_file->data + data_pos;
+	pod_file->audit_trail = (pod_audit_entry_pod2_t*)(pod_file->data + data_pos);
 	return pod_file;
+}
+
+bool pod_file_pod2_write(pod_file_pod2_t* pod_file, pod_string_t filename)
+{
+	if(pod_file == NULL || filename == NULL)
+	{
+		fprintf(stderr, "ERROR: pod_file or filename equals NULL!\n");
+		return false;
+	}
+	FILE *file = fopen(filename, "wb");
+
+	/* write pod_header_pod2_t */
+	if(fwrite(pod_type_str(POD2), POD_CHAR_SIZE, POD_IDENT_SIZE, file) != POD_IDENT_SIZE)
+	{
+		fprintf(stderr, "ERROR: writing POD2 ident string!\n");
+		fclose(file);
+		return false;
+	}
+
+	/* calculate new checksum and write it */
+	pod_file->header->checksum = pod_crc_pod2(pod_file);
+	if(fwrite(&pod_file->header->checksum, POD_HEADER_CHECKSUM_SIZE, 1, file) != 1)
+	{
+		fprintf(stderr, "ERROR: writing checksum!\n");
+		fclose(file);
+		return false;
+	}
+	/* write comment string */
+	if(fwrite(pod_file->header->comment, 1, POD_COMMENT_SIZE, file) != POD_COMMENT_SIZE)
+	{
+		fprintf(stderr, "ERROR: writing comment string!\n");
+		fclose(file);
+		return false;
+	}
+	/* write file count */
+	if(fwrite(&pod_file->header->file_count, POD_NUMBER_SIZE, 1, file) != 1)
+	{
+		fprintf(stderr, "ERROR: writing file count!\n");
+		fclose(file);
+		return false;
+	}
+	/* write audit file count */
+	if(fwrite(&pod_file->header->audit_file_count, POD_NUMBER_SIZE, 1, file) != 1)
+	{
+		fprintf(stderr, "ERROR: writing audit file count!\n");
+		fclose(file);
+		return false;
+	}
+	/* write entries */
+	if(fwrite(pod_file->entries, POD_DIR_ENTRY_POD2_SIZE, pod_file->header->file_count, file) != pod_file->header->file_count)
+	{
+		fprintf(stderr, "ERROR: writing entries!\n");
+		fclose(file);
+		return false;
+	}
+	/* write path data */
+	if(fwrite(pod_file->path_data, 1, pod_file->path_data_size, file) != pod_file->path_data_size)
+	{
+		fprintf(stderr, "ERROR: writing path data!\n");
+		fclose(file);
+		return false;
+	}
+	/* write entry data */
+	if(fwrite(pod_file->entry_data, 1, pod_file->entry_data_size, file) != pod_file->entry_data_size)
+	{
+		fprintf(stderr, "ERROR: writing entry data!\n");
+		fclose(file);
+		return false;
+	}
+	/* write audit trail */
+
+	if(fwrite(pod_file->audit_trail, POD_AUDIT_ENTRY_POD2_SIZE, pod_file->header->audit_file_count, file) != pod_file->header->audit_file_count)
+	{
+		fprintf(stderr, "ERROR: writing audit trail!\n");
+		fclose(file);
+		return false;
+	}
+
+	fclose(file);
+	return true;	
 }

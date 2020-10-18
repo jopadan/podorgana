@@ -17,6 +17,12 @@ int main(int argc, char** argv)
 			exit(EXIT_FAILURE);
 		}
 		pod_file_pod2_print(pod2);
+		if(!pod_file_pod2_write(pod2, "foo.pod"))
+		{
+			fprintf(stderr, "ERROR: cannot write foo.pod!\n");
+			pod_file_pod2_destroy(pod2);
+			exit(EXIT_FAILURE);
+		}
 		pod_file_pod2_destroy(pod2);
 	}
 	else

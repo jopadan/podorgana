@@ -66,5 +66,6 @@ uint32_t pod_crc_pod2_audit(pod_file_pod2_t* file, pod_number_t audit_index);
 pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename);
 bool pod_file_pod2_destroy(pod_file_pod2_t* podfile);
 bool pod_file_pod2_print(pod_file_pod2_t* podfile);
+bool pod_file_pod2_write(pod_file_pod2_t* pod_file, pod_string_t filename);
 
 #endif
