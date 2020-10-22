@@ -82,7 +82,7 @@ bool pod_file_pod2_print(pod_file_pod2_t* pod_file)
 	{
 		pod_entry_pod2_t* entry = &pod_file->entries[i];
 		pod_char_t* name = pod_file->path_data + pod_file->entries[i].path_offset;
-		printf("entry: %u name: %s path_offset %u size: %u offset: %u timestamp: %s recorded checksum: %u calculated checksum: %u\n", i, name, entry->path_offset, entry->size, entry->offset, pod_ctime(&entry->timestamp), entry->checksum, pod_crc_pod2_entry(podfile, i));
+		printf("entry: %u name: %s path_offset %u size: %u offset: %u timestamp: %s recorded checksum: %u calculated checksum: %u\n", i, name, entry->path_offset, entry->size, entry->offset, pod_ctime(&entry->timestamp), entry->checksum, pod_crc_pod2_entry(pod_file, i));
 	}
 	for(int i = 0; i < pod_file->header->audit_file_count; i++)
 	{
