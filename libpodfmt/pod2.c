@@ -2,6 +2,8 @@
 #include "pod_common.h"
 #include "pod2.h"
 
+const char pod_audit_action_string[POD2_AUDIT_ACTION_SIZE][8] = { "Add", "Remove", "Change" };
+
 uint32_t pod_crc(pod_byte_t* data, pod_size_t count)
 {
 	if(data == NULL || count == 0)
@@ -40,34 +42,75 @@ bool is_pod2(char* ident)
   return (POD2 == pod_type(ident) >= 0);
 }
 
-bool pod_file_pod2_print(pod_file_pod2_t* podfile)
+bool pod_audit_entry_pod2_print(pod_audit_entry_pod2_t* audit)
 {
-	if(podfile == NULL)
+	if(audit == NULL)
+	{
+		fprintf(stderr, "ERROR: pod_audit_entry_pod2_print(audit == NULL)!\n");
+		return false;
+	}
+	/*
+	switch(pod_file->audit_trail[i].action)
+	{
+		case POD_AUDIT_ACTION_ADD:
+			pod_file->audit_trail[i].new_data;
+			break;
+		case POD_AUDIT_ACTION_REMOVE:
+			pod_file->audit_trail[i].old_data;
+			break;
+		case POD_AUDIT_ACTION_CHANGE:
+			pod_file->audit_trail[i].old_data; 
+			pod_file->audit_trail[i].new_data;
+			break;
+		default:
+			break;
+		}
+	}
+	*/
+	printf("user: %s timestamp: %d action: %s path: %s old_timestamp: %s old_size: %s new_timestamp: %s new_size: %s\n", audit->user, pod_ctime(&audit->timestamp), pod_audit_action_string[audit->action], audit->path, pod_ctime(&audit->old_timestamp), audit->old_size, pod_ctime(&audit->new_timestamp), audit->new_size);
+	return true;
+}
+
+bool pod_file_pod2_print(pod_file_pod2_t* pod_file)
+{
+	if(pod_file == NULL)
 	{
 		fprintf(stderr, "ERROR: pod_file_pod2_print() podfile == NULL\n");
 		return false;
 	}
-	for(pod_number_t i = 0; i < podfile->header->file_count; i++)
+	for(pod_number_t i = 0; i < pod_file->header->file_count; i++)
 	{
-		pod_entry_pod2_t* entry = &podfile->entries[i];
-		pod_char_t* name = podfile->path_data + podfile->entries[i].path_offset;
-		printf("entry: %u name: %s path_offset %u size: %u offset: %u timestamp: %u recorded checksum: %u calculated checksum: %u\n", i, name, entry->path_offset, entry->size, entry->offset, entry->timestamp, entry->checksum, pod_crc_pod2_entry(podfile, i));
+		pod_entry_pod2_t* entry = &pod_file->entries[i];
+		pod_char_t* name = podfile->path_data + pod_file->entries[i].path_offset;
+		printf("entry: %u name: %s path_offset %u size: %u offset: %u timestamp: %s recorded checksum: %u calculated checksum: %u\n", i, name, entry->path_offset, entry->size, entry->offset, pod_ctime(&entry->timestamp), entry->checksum, pod_crc_pod2_entry(podfile, i));
 	}
-	fprintf(stdout,"filename           : %s\nformat             : %s\ncomment            : %s\nrecorded checksum  : %u\ncalculated checksum: %u\nfile checksum      : %u\nsize               : %u\nfile entries       : %u\naudit entries      : %u\n", podfile->filename, pod_type_str(pod_type(podfile->header->ident)), podfile->header->comment, podfile->header->checksum, pod_crc_pod2(podfile), podfile->checksum, podfile->size, podfile->header->file_count, podfile->header->audit_file_count);
+	for(int i = 0; i < pod_file->header->audit_file_count; i++)
+	{
+		if(!pod_audit_entry_pod2_print(&pod_file->audit_trail[i]))
+		{
+			fprintf(stderr, "ERROR: pod_audit_entry_pod2_print() failed!");
+			pod_file_pod2_destroy(pod_file);
+			return NULL;
+		}
+	}	
+	fprintf(stdout,"filename           : %s\nformat             : %s\ncomment            : %s\nrecorded checksum  : %u\ncalculated checksum: %u\nfile checksum      : %u\nsize               : %u\nfile entries       : %u\naudit entries      : %u\n", pod_file->filename, pod_type_str(pod_type(pod_file->header->ident)), pod_file->header->comment, pod_file->header->checksum, pod_crc_pod2(pod_file), pod_file->checksum, pod_file->size, pod_file->header->file_count, pod_file->header->audit_file_count);
 	return true;
 }
 
 bool pod_file_pod2_destroy(pod_file_pod2_t* podfile)
 {
-	if(!podfile || !podfile->data)
+	if(!podfile)
 	{
-		fprintf(stderr, "ERROR: could not free podfile!\n");
+		fprintf(stderr, "ERROR: could not free podfile == NULL!\n");
 		return false;
 	}
 
-	free(podfile->data);
-	free(podfile->filename);
-	free(podfile);
+	if(podfile->data)
+		free(podfile->data);
+	if(podfile->filename);
+		free(podfile->filename);
+	if(podfile)
+		free(podfile);
 	return true;
 }
 
@@ -99,6 +142,7 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename)
 	{
 		fprintf(stderr, "ERROR: Could not allocate memory of size %lu for file %s!\n", pod_file->size, filename);
 		fclose(file);
+		pod_file_pod2_destroy(pod_file);
 		return NULL;
 	}
 
@@ -106,7 +150,7 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename)
 	{
 		fprintf(stderr, "ERROR: Could not read file %s!\n");
 		fclose(file);
-		free(pod_file->data);
+		pod_file_pod2_destroy(pod_file);
 		return NULL;
 	}
 
@@ -160,7 +204,20 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename)
 	data_pos += pod_file->path_data_size + pod_file->entry_data_size;
 
 	pod_file->audit_trail = (pod_audit_entry_pod2_t*)(pod_file->data + data_pos);
+
 	return pod_file;
+}
+
+bool pod_file_pod2_add_entry(pod_file_pod2_t* pod_file, pod_entry_pod2_t* entry, pod_byte_t* data)
+{
+	if(pod_file == NULL || entry == NULL || data == NULL)
+	{
+		fprintf(stderr, "ERROR: pod_file, entry or data equals NULL!\n");
+		return false;
+	}
+
+	
+	return true;
 }
 
 bool pod_file_pod2_write(pod_file_pod2_t* pod_file, pod_string_t filename)

@@ -10,6 +10,8 @@ enum pod_audit_entry_pod2_action_t
 };
 typedef enum pod_audit_entry_pod2_action_t pod_audit_entry_pod2_action_t;
 
+extern const char pod_audit_action_string[POD2_AUDIT_ACTION_SIZE][8];
+
 /* POD2 header data structure */
 typedef struct pod_header_pod2_s
 {
@@ -25,7 +27,7 @@ typedef struct pod_entry_pod2_s {
 	pod_number_t path_offset;
 	pod_number_t size;
 	pod_number_t offset;
-	pod_number_t timestamp;
+	pod_time_t timestamp;
 	pod_number_t checksum;
 } pod_entry_pod2_t;
 
@@ -33,10 +35,13 @@ typedef struct pod_entry_pod2_s {
 typedef struct pod_audit_entry_pod2_s
 {
 	pod_char_t user[POD_STRING_32];
-	pod_time_t checksum;
+	pod_time_t timestamp;
 	pod_number_t action;
 	pod_char_t path[POD_STRING_256];
-	pod_byte_t data[16];
+	pod_time_t old_timestamp;
+	pod_number_t old_size;
+	pod_time_t new_timestamp;
+	pod_number_t new_size;
 } pod_audit_entry_pod2_t;
 
 /* POD2 file data structure */
@@ -67,5 +72,5 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename);
 bool pod_file_pod2_destroy(pod_file_pod2_t* podfile);
 bool pod_file_pod2_print(pod_file_pod2_t* podfile);
 bool pod_file_pod2_write(pod_file_pod2_t* pod_file, pod_string_t filename);
-
+bool pod_audit_entry_pod2_print(pod_audit_entry_pod2_t* audit);
 #endif

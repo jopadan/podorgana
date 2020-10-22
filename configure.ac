@@ -8,7 +8,8 @@ AC_PROG_LIBTOOL
 AC_SEARCH_LIBS(pow,m)
 AC_SEARCH_LIBS(pthread_create,pthread)
 AC_SEARCH_LIBS(dlopen,dl)
-AC_SEARCH_LIBS(is_pod,libpodfmt)
+AC_SEARCH_LIBS(update_crc_ccitt32,crc)
+AC_SEARCH_LIBS(is_pod,podfmt)
 AC_CONFIG_FILES([libpodfmt/Makefile
 		Makefile])
 AC_OUTPUT
