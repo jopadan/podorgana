@@ -88,6 +88,7 @@ bool pod_file_pod2_print(pod_file_pod2_t* pod_file)
 	}
 
 	/* print entries */
+	printf("\nEntries:\n");
 	for(pod_number_t i = 0; i < pod_file->header->file_count; i++)
 	{
 		pod_entry_pod2_t* entry = &pod_file->entries[i];
@@ -103,6 +104,7 @@ bool pod_file_pod2_print(pod_file_pod2_t* pod_file)
 			entry->path_offset);
 	}
 
+	printf("\nAudit:\n");
 	/* print audit trail */
 	for(int i = 0; i < pod_file->header->audit_file_count; i++)
 	{
