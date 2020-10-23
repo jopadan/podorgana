@@ -67,7 +67,15 @@ bool pod_audit_entry_pod2_print(pod_audit_entry_pod2_t* audit)
 		}
 	}
 	*/
-	printf("user: %s timestamp: %d action: %s path: %s old_timestamp: %s old_size: %s new_timestamp: %s new_size: %s\n", audit->user, pod_ctime(&audit->timestamp), pod_audit_action_string[audit->action], audit->path, pod_ctime(&audit->old_timestamp), audit->old_size, pod_ctime(&audit->new_timestamp), audit->new_size);
+	printf("\n%s %s\n%s %s\n%u / %u\n%s / %s\n",
+		audit->user,
+		pod_ctime(&audit->timestamp),
+		pod_audit_action_string[audit->action],
+		audit->path,
+		audit->old_size,
+		audit->new_size,
+		pod_ctime(&audit->old_timestamp),
+		pod_ctime(&audit->new_timestamp));
 	return true;
 }
 
@@ -78,12 +86,24 @@ bool pod_file_pod2_print(pod_file_pod2_t* pod_file)
 		fprintf(stderr, "ERROR: pod_file_pod2_print() podfile == NULL\n");
 		return false;
 	}
+
+	/* print entries */
 	for(pod_number_t i = 0; i < pod_file->header->file_count; i++)
 	{
 		pod_entry_pod2_t* entry = &pod_file->entries[i];
-		pod_char_t* name = pod_file->path_data + pod_file->entries[i].path_offset;
-		printf("entry: %u name: %s path_offset %u size: %u offset: %u timestamp: %s recorded checksum: %u calculated checksum: %u\n", i, name, entry->path_offset, entry->size, entry->offset, pod_ctime(&entry->timestamp), entry->checksum, pod_crc_pod2_entry(pod_file, i));
+		pod_char_t* name = pod_file->path_data + entry->path_offset;
+		printf("%10.u %10.u %.8X/%.8X %10.u %s %s %10.u\n",
+		       	i,
+			entry->offset,
+			entry->checksum,
+			pod_crc_pod2_entry(pod_file, i),
+			entry->size,
+			pod_ctime(&entry->timestamp),
+			name,
+			entry->path_offset);
 	}
+
+	/* print audit trail */
 	for(int i = 0; i < pod_file->header->audit_file_count; i++)
 	{
 		if(!pod_audit_entry_pod2_print(&pod_file->audit_trail[i]))
@@ -92,8 +112,20 @@ bool pod_file_pod2_print(pod_file_pod2_t* pod_file)
 			pod_file_pod2_destroy(pod_file);
 			return NULL;
 		}
-	}	
-	fprintf(stdout,"filename           : %s\nformat             : %s\ncomment            : %s\nrecorded checksum  : %u\ncalculated checksum: %u\nfile checksum      : %u\nsize               : %u\nfile entries       : %u\naudit entries      : %u\n", pod_file->filename, pod_type_str(pod_type(pod_file->header->ident)), pod_file->header->comment, pod_file->header->checksum, pod_crc_pod2(pod_file), pod_file->checksum, pod_file->size, pod_file->header->file_count, pod_file->header->audit_file_count);
+	}
+	/* print file summary */
+	printf("\nSummary:\nfile checksum      : %.8X\nsize               : %u\nfilename           : %s\nformat             : %s\ncomment            : %s\ndata checksum      : %.8X/%.8X\nfile entries       : %u\naudit entries      : %u\n",
+		pod_file->checksum,
+		pod_file->size,
+		pod_file->filename,
+		pod_type_str(pod_type(pod_file->header->ident)),
+		pod_file->header->comment,
+		pod_file->header->checksum,
+		pod_crc_pod2(pod_file),
+		pod_file->header->file_count,
+		pod_file->header->audit_file_count);
+
+	
 	return true;
 }
 
@@ -298,4 +330,40 @@ bool pod_file_pod2_write(pod_file_pod2_t* pod_file, pod_string_t filename)
 
 	fclose(file);
 	return true;	
+}
+
+bool pod_file_pod2_extract(pod_file_pod2_t* pod_file, pod_string_t dst)
+{
+	if(pod_file == NULL)
+	{
+		fprintf(stderr, "ERROR: pod_file_pod2_extract(pod_file == NULL)\n");
+		return false;
+	}
+	pod_char_t cwd[1024];
+	getcwd(cwd, sizeof(cwd));
+	if(dst == NULL || chdir(dst) != 0)
+	{
+		fprintf(stderr, "ERROR: could not change dir to dst!\n");
+		return false;
+	}
+	
+	for(int i = 0; i < pod_file->header->file_count; i++)
+	{
+		pod_string_t entry_path = pod_file->path_data + pod_file->entries[i].path_offset;
+		if(!entry_path)
+		{
+			fprintf(stderr, "ERROR: pod_file_pod2_extract(entry_path == NULL)\n");
+			return false;
+		}
+		FILE* file = fopen(entry_path, "wb");
+		if(fwrite(pod_file->data + pod_file->entries[i].offset, pod_file->entries[i].size, 1, file) != 1)
+		{
+			fprintf(stderr, "ERROR: fwrite failed!\n");
+			fclose(file);
+			return false;
+		}
+		fclose(file);
+	}
+	chdir(cwd);
+	return true;
 }

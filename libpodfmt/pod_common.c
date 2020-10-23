@@ -60,3 +60,19 @@ pod_string_t pod_type_to_file_ext(int pod_type)
 
 	return NULL;
 }
+
+pod_string_t pod_ctime(pod_time_t* time32)
+{
+	struct tm tm;
+	errno_t ret = _localtime32_s(&tm, time32);
+	if(ret != 0)
+	{
+		fprintf(stderr, "%s\n", strerror(ret));
+		return 0;
+	}
+	__time64_t time64 = _mktime64(&tm);
+	char* str = _ctime64(&time64);
+	str[strcspn(str, "\n")] = '\0';
+
+	return  str;
+}

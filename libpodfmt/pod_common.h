@@ -21,7 +21,7 @@ typedef off_t                                pod_off_t;
 typedef uint8_t                              pod_byte_t;
 typedef int8_t                               pod_char_t;
 typedef wchar_t                              pod_wchar_t;
-typedef int8_t*                              pod_string_t;
+typedef pod_char_t*                              pod_string_t;
 typedef wchar_t*                             pod_wchar_string_t;
 typedef __time32_t                           pod_time_t;
 
@@ -30,25 +30,13 @@ typedef __time32_t                           pod_time_t;
 #define POD_CHAR_SIZE                        sizeof(pod_char_t)            /* length of a character entry    */
 #define POD_STRING_SIZE                      sizeof(pod_string_t)          /* length string char* entry      */
 #define POD_TIME_SIZE                        sizeof(pod_time_t)            /* length of a time entry         */
-
 #define POD_HEADER_CHECKSUM_DEFAULT          0x44424247                    /* default checksum of POD file   */
 #define POD_ENTRY_CHECKSUM_DEFAULT           0x20444542                    /* default checksum of POD entry  */
 #define POD_ENTRY_TIMESTAMP_DEFAULT          0x42494720                    /* default timestamp of POD entry */
 #define POD_HEADER_UNKNOWN10C_DEFAULT        0x58585858			   /* default value of unknown10c    */
 #define POD_CHECKSUM_DEFAULT                 0xFFFFFFFF                    /* default seed for CCIT32-CRC    */
 
-char* pod_ctime(pod_time_t* time32)
-{
-	struct tm tm;
-	errno_t ret = _localtime32_s(&tm, time32);
-	if(ret != 0)
-	{
-		fprintf(stderr, "%s\n", strerror(ret));
-		return 0;
-	}
-	__time64_t time64 = _mktime64(&tm);
-	return _ctime64(&time64);	
-}
+pod_string_t pod_ctime(pod_time_t* time32);
 
 enum pod_string_size_t
 {
