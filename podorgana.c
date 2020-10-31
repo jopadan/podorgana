@@ -23,6 +23,7 @@ int main(int argc, char** argv)
 			pod_file_pod2_destroy(pod2);
 			exit(EXIT_FAILURE);
 		}
+		pod_file_pod2_extract(pod2, "foo");
 		pod_file_pod2_destroy(pod2);
 	}
 	else

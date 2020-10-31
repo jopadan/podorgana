@@ -1,6 +1,5 @@
-#include <assert.h>
-#include "pod_common.h"
-#include "pod2.h"
+#include "pod_common.h" 
+#include "pod2.h" 
 
 const char pod_audit_action_string[POD2_AUDIT_ACTION_SIZE][8] = { "Add", "Remove", "Change" };
 
@@ -343,21 +342,30 @@ bool pod_file_pod2_extract(pod_file_pod2_t* pod_file, pod_string_t dst)
 	}
 	pod_char_t cwd[1024];
 	getcwd(cwd, sizeof(cwd));
-	if(dst == NULL || chdir(dst) != 0)
-	{
-		fprintf(stderr, "ERROR: could not change dir to dst!\n");
-		return false;
-	}
-	
+	if(dst == NULL) { dst = cwd; }
+	else if(mkdir(dst) && errno != EEXIST) { fprintf(stderr, "mkdir(%s) = %s\n", dst, strerror(errno)); return false; }
+	chdir(dst);
+	getcwd(cwd, sizeof(cwd));
 	for(int i = 0; i < pod_file->header->file_count; i++)
 	{
-		pod_string_t entry_path = pod_file->path_data + pod_file->entries[i].path_offset;
-		if(!entry_path)
+		pod_string_t pathname = strdup(pod_file->path_data + pod_file->entries[i].path_offset);
+		if(!pathname)
 		{
-			fprintf(stderr, "ERROR: pod_file_pod2_extract(entry_path == NULL)\n");
+			fprintf(stderr, "ERROR: pod_file_pod2_extract(pathname == NULL)\n");
 			return false;
 		}
-		FILE* file = fopen(entry_path, "wb");
+		pod_string_t filename = strrchr(pathname, POD_PATH_SEPARATOR) + 1;
+		*strrchr(pathname, POD_PATH_SEPARATOR) = '\0';
+
+		if(mkdir(pathname) && errno != EEXIST) { fprintf(stderr, "mkdir(%s) = %s\n", pathname, strerror(errno)); return false; }
+		if(chdir(pathname)) { fprintf(stderr, "chdir(%s) = %s\n", pathname, strerror(errno)); return false; }
+
+		FILE* file = fopen(filename, "wb");
+		if(file == NULL)
+		{
+			fprintf(stderr, "ERROR: fopen failed(%s) == NULL!\n", filename);
+			return false;
+		}
 		if(fwrite(pod_file->data + pod_file->entries[i].offset, pod_file->entries[i].size, 1, file) != 1)
 		{
 			fprintf(stderr, "ERROR: fwrite failed!\n");
@@ -365,6 +373,8 @@ bool pod_file_pod2_extract(pod_file_pod2_t* pod_file, pod_string_t dst)
 			return false;
 		}
 		fclose(file);
+		free(pathname);
+		chdir(cwd);
 	}
 	chdir(cwd);
 	return true;

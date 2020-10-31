@@ -1,6 +1,7 @@
 #ifndef _POD3_H
 #define _POD3_H
 
+
 /* POD3 header data structure */
 typedef struct pod_header_pod3_s
 {
@@ -16,9 +17,9 @@ typedef struct pod_header_pod3_s
 	pod_number_t index_offset;
 	pod_number_t unknown10c;
 	pod_number_t size_index;
-	pod_number_t unknown114;
-	pod_number_t unknown118;
-	pod_number_t unknown11C;
+	pod_number_t number_min; /* 0x00000000 */
+	pod_number_t number_max; /* 0xFFFFFFFF */
+	pod_number_t unknown11C; /* 0xFFFFFFFF 0xD4009345 0x64B5C42D 0xA1FE0F74 */
 } pod_header_pod3_t;
 
 /* POD3 entry data structure */

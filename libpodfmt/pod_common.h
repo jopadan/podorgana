@@ -12,6 +12,9 @@
 #include <string.h>
 #include <time.h>
 #include <assert.h>
+#include <libgen.h> 
+#include <sys/stat.h>
+#include <errno.h>
 #include "ccitt32_crc.h"
 /* main variable type sizes of POD file formats                                                            */
 typedef uint32_t                             pod_number_t;
@@ -35,7 +38,7 @@ typedef __time32_t                           pod_time_t;
 #define POD_ENTRY_TIMESTAMP_DEFAULT          0x42494720                    /* default timestamp of POD entry */
 #define POD_HEADER_UNKNOWN10C_DEFAULT        0x58585858			   /* default value of unknown10c    */
 #define POD_CHECKSUM_DEFAULT                 0xFFFFFFFF                    /* default seed for CCIT32-CRC    */
-
+#define POD_PATH_SEPARATOR                   '\\'                          /* default path separator */
 pod_string_t pod_ctime(pod_time_t* time32);
 
 enum pod_string_size_t
