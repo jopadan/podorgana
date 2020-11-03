@@ -333,6 +333,8 @@ bool pod_file_pod2_write(pod_file_pod2_t* pod_file, pod_string_t filename)
 	return true;	
 }
 
+/* Extract POD2 file pod_file to directory dst                       */
+/* @returns true on success otherwise false and leaves errno         */
 bool pod_file_pod2_extract(pod_file_pod2_t* pod_file, pod_string_t dst)
 {
 	if(pod_file == NULL)
@@ -340,30 +342,26 @@ bool pod_file_pod2_extract(pod_file_pod2_t* pod_file, pod_string_t dst)
 		fprintf(stderr, "ERROR: pod_file_pod2_extract(pod_file == NULL)\n");
 		return false;
 	}
+	if(dst == NULL) { dst = ""; }
+	/* create and change to destination directory */
+	else if(!pod_directory_create(dst, '/')) { fprintf(stderr, "pod_directory_create(%s) = %s\n", dst, strerror(errno)); return false; }
 	pod_char_t cwd[1024];
 	getcwd(cwd, sizeof(cwd));
-	if(dst == NULL) { dst = cwd; }
-	else if(mkdir(dst) && errno != EEXIST) { fprintf(stderr, "mkdir(%s) = %s\n", dst, strerror(errno)); return false; }
 	chdir(dst);
-	getcwd(cwd, sizeof(cwd));
+	/* extract entries */
 	for(int i = 0; i < pod_file->header->file_count; i++)
 	{
-		pod_string_t pathname = strdup(pod_file->path_data + pod_file->entries[i].path_offset);
-		if(!pathname)
+		pod_string_t filename = strdup(pod_file->path_data + pod_file->entries[i].path_offset);
+		if(!filename)
 		{
-			fprintf(stderr, "ERROR: pod_file_pod2_extract(pathname == NULL)\n");
+			fprintf(stderr, "ERROR: pod_file_pod2_extract(filename == NULL)\n");
 			return false;
 		}
-		pod_string_t filename = strrchr(pathname, POD_PATH_SEPARATOR) + 1;
-		*strrchr(pathname, POD_PATH_SEPARATOR) = '\0';
-
-		if(mkdir(pathname) && errno != EEXIST) { fprintf(stderr, "mkdir(%s) = %s\n", pathname, strerror(errno)); return false; }
-		if(chdir(pathname)) { fprintf(stderr, "chdir(%s) = %s\n", pathname, strerror(errno)); return false; }
-
-		FILE* file = fopen(filename, "wb");
+		/* open and create directories including parents */
+		FILE* file = pod_fopen_mkdir(filename, "wb");
 		if(file == NULL)
 		{
-			fprintf(stderr, "ERROR: fopen failed(%s) == NULL!\n", filename);
+			fprintf(stderr, "ERROR: pod_fopen_mkdir(%s) failed: %s\n", filename, strerror(errno));
 			return false;
 		}
 		if(fwrite(pod_file->data + pod_file->entries[i].offset, pod_file->entries[i].size, 1, file) != 1)
@@ -372,9 +370,9 @@ bool pod_file_pod2_extract(pod_file_pod2_t* pod_file, pod_string_t dst)
 			fclose(file);
 			return false;
 		}
+		/* clean up and pop */
 		fclose(file);
-		free(pathname);
-		chdir(cwd);
+		free(filename);
 	}
 	chdir(cwd);
 	return true;

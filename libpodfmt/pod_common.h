@@ -1,21 +1,31 @@
 #ifndef _POD_COMMON_H
 #define _POD_COMMON_H
 
+#ifndef __ATFILE_VISIBLE
+#define __ATFILE_VISIBLE 1
+#endif
+#ifndef __POSIX_VISIBLE
+#define __POSIX_VISIBLE 200809
+#endif
+
+#include <sys/cygwin.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <math.h>
-#include <string.h>
 #include <time.h>
 #include <assert.h>
 #include <libgen.h> 
-#include <sys/stat.h>
 #include <errno.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include "ccitt32_crc.h"
+
 /* main variable type sizes of POD file formats                                                            */
 typedef uint32_t                             pod_number_t;
 typedef size_t                               pod_size_t;
@@ -24,9 +34,10 @@ typedef off_t                                pod_off_t;
 typedef uint8_t                              pod_byte_t;
 typedef int8_t                               pod_char_t;
 typedef wchar_t                              pod_wchar_t;
-typedef pod_char_t*                              pod_string_t;
+typedef pod_char_t*                          pod_string_t;
 typedef wchar_t*                             pod_wchar_string_t;
 typedef __time32_t                           pod_time_t;
+typedef pod_char_t*                          pod_path_t;
 
 #define POD_NUMBER_SIZE                      sizeof(pod_number_t)          /* length of a numerical entry    */
 #define POD_BYTE_SIZE                        sizeof(pod_byte_t)            /* length of a byte entry         */
@@ -38,7 +49,9 @@ typedef __time32_t                           pod_time_t;
 #define POD_ENTRY_TIMESTAMP_DEFAULT          0x42494720                    /* default timestamp of POD entry */
 #define POD_HEADER_UNKNOWN10C_DEFAULT        0x58585858			   /* default value of unknown10c    */
 #define POD_CHECKSUM_DEFAULT                 0xFFFFFFFF                    /* default seed for CCIT32-CRC    */
-#define POD_PATH_SEPARATOR                   '\\'                          /* default path separator */
+#define POD_PATH_SEPARATOR                   '\\'                          /* default path separator         */
+#define POD_SYSTEM_PATH_SIZE                 1024                          /* default system path length     */
+#define POD_UMASK                            0755                          /* default UMASK privileges       */
 pod_string_t pod_ctime(pod_time_t* time32);
 
 enum pod_string_size_t
@@ -258,6 +271,12 @@ extern pod_ident_type_t pod_type(char* ident);
 extern bool is_pod(char* ident);
 extern pod_string_t pod_type_to_file_ext(int pod_type);
 extern const char* pod_type_str(pod_ident_type_t type);
+extern FILE* pod_fopen_mkdir(pod_string_t path, char* mode);
+extern bool pod_rec_mkdir(pod_string_t path, char separator);
+extern bool pod_directory_create(pod_string_t path, char separator);
+extern pod_path_t pod_path_system_home();
+extern pod_path_t pod_path_system_root();
+extern pod_path_t pod_path_append(pod_path_t a, pod_path_t b);
 
 extern const ssize_t POD_DIR_ENTRY_SIZE[POD_IDENT_TYPE_SIZE];
 extern const ssize_t POD_HEADER_SIZE[POD_IDENT_TYPE_SIZE];

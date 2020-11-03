@@ -23,7 +23,16 @@ int main(int argc, char** argv)
 			pod_file_pod2_destroy(pod2);
 			exit(EXIT_FAILURE);
 		}
-		pod_file_pod2_extract(pod2, "foo");
+		pod_path_t root = pod_path_system_root();
+		pod_path_t home = pod_path_system_home();
+		printf("%s\n",root);
+		printf("%s\n",home);
+		/*
+		if(!pod_directory_create("/pod/foo", '/'))
+		{
+			fprintf(stderr, "ERROR: pod_directory_failed!\n");
+		}*/
+		//pod_file_pod2_extract(pod2, "\/pod\/foo");
 		pod_file_pod2_destroy(pod2);
 	}
 	else

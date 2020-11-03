@@ -76,3 +76,107 @@ pod_string_t pod_ctime(pod_time_t* time32)
 
 	return  str;
 }
+
+
+bool pod_rec_mkdir(pod_string_t path, char separator)
+{
+	pod_char_t *sep = strrchr(path, POD_PATH_SEPARATOR);
+	if(sep != NULL)
+	{
+		*sep = '\0';
+		if(!pod_rec_mkdir(path, separator))
+		{
+			*sep = separator;
+			fprintf(stderr,"ERROR: pod_rec_mkdir(%s) failed: %s\n", path, strerror(errno));
+			return false;
+		}
+		*sep = separator;
+	}
+
+	if(mkdir(path) && errno != EEXIST)
+	{
+		fprintf(stderr,"ERROR: mkdir(%s): %s\n", path, strerror(errno));
+		return false;
+	}
+	return true;
+}
+
+bool pod_directory_create(pod_string_t path, char separator)
+{
+	if(path == NULL)
+		return false;
+
+	pod_char_t *sep = strrchr(path, separator);
+
+	if(sep == NULL)
+		return false;
+
+	pod_char_t *path0 = strdup(path);
+	path0[sep - path ] = '\0';
+
+	bool ret = pod_rec_mkdir(path0, separator);
+       	free(path0);
+	return ret;
+}
+
+pod_path_t pod_path_system_home()
+{
+#if defined (__CYGWIN__) 
+	pod_path_t home = cygwin_create_path(CCP_POSIX_TO_WIN_A | CCP_ABSOLUTE, "/home");
+	if(home == NULL)
+		perror("cygwin_conv_path");
+#elif defined (__MINGW32__) || defined (__MINGW64__)
+	pod_path_t home = cygwin_create_path(CCP_POSIX_TO_WIN_A | CCP_ABSOLUTE, "/home");
+	if(home == NULL)
+		perror("cygwin_conv_path");
+
+#elif defined (__WIN32__) || defined ( __WIN64__)
+	pod_path_t home = calloc(0, POD_SYSTEM_PATH_SIZE);
+	snprintf(home, POD_SYSTEM_PATH_SIZE, "%s%s", getenv("HOMEDRIVE"), getenv("HOMEPATH"));
+#else
+	pod_path_t home = strdup("/home");
+#endif
+	return home;
+}
+
+pod_path_t pod_path_system_root()
+{
+#if defined (__CYGWIN__)
+	pod_path_t root = cygwin_create_path(CCP_POSIX_TO_WIN_A | CCP_ABSOLUTE, "/");
+	if(root == NULL)
+		perror("cygwin_conv_path");
+#elif defined(__MINGW32__) || defined(__MINGW64__)
+	pod_path_t root = cygwin_create_path(CCP_POSIX_TO_WIN_A | CCP_ABSOLUTE, "/");
+	if(root == NULL)
+		perror("cygwin_conv_path");
+#elif defined(__WIN32__) || defined(__WIN64__)
+	pod_path_t root = getenv("SYSTEMDRIVE");
+#else
+	pod_path_t root = strdup("/");
+#endif
+	return root;
+}
+
+pod_path_t pod_path_append(pod_path_t a, pod_path_t b)
+{
+	ssize_t size_a = strlen(a);
+	ssize_t size_b = strlen(b);
+	ssize_t size = size_a + size_b + 1;
+	pod_path_t path = calloc(0, size);
+	pod_path_t dst = strncpy(path, a, size_a);
+	strncpy(&dst[strlen(dst)], b, size_b);
+	return dst;
+}
+
+FILE* pod_fopen_mkdir(pod_string_t path, char* mode)
+{
+	if(path == NULL) { return NULL; }
+	pod_char_t *sep = strrchr(path, POD_PATH_SEPARATOR);
+	if(sep) {
+		pod_char_t *path0 = strdup(path);
+		path0[ sep - path ] = '\0';
+		pod_rec_mkdir(path0, POD_PATH_SEPARATOR);
+		free(path0);
+	}
+	return fopen(path, mode);
+}
