@@ -121,18 +121,15 @@ bool pod_directory_create(pod_string_t path, char separator)
 
 pod_path_t pod_path_system_home()
 {
-#if defined (__CYGWIN__) 
+#if defined(__WIN32__) || defined(__WIN64__)
+#if defined (__MSYS__) 
 	pod_path_t home = cygwin_create_path(CCP_POSIX_TO_WIN_A | CCP_ABSOLUTE, "/home");
 	if(home == NULL)
 		perror("cygwin_conv_path");
-#elif defined (__MINGW32__) || defined (__MINGW64__)
-	pod_path_t home = cygwin_create_path(CCP_POSIX_TO_WIN_A | CCP_ABSOLUTE, "/home");
-	if(home == NULL)
-		perror("cygwin_conv_path");
-
-#elif defined (__WIN32__) || defined ( __WIN64__)
+#else
 	pod_path_t home = calloc(0, POD_SYSTEM_PATH_SIZE);
 	snprintf(home, POD_SYSTEM_PATH_SIZE, "%s%s", getenv("HOMEDRIVE"), getenv("HOMEPATH"));
+#endif
 #else
 	pod_path_t home = strdup("/home");
 #endif
@@ -141,16 +138,14 @@ pod_path_t pod_path_system_home()
 
 pod_path_t pod_path_system_root()
 {
-#if defined (__CYGWIN__)
+#if defined(__WIN32__) || defined(__WIN64__)
+#if defined (__MSYS__)
 	pod_path_t root = cygwin_create_path(CCP_POSIX_TO_WIN_A | CCP_ABSOLUTE, "/");
 	if(root == NULL)
 		perror("cygwin_conv_path");
-#elif defined(__MINGW32__) || defined(__MINGW64__)
-	pod_path_t root = cygwin_create_path(CCP_POSIX_TO_WIN_A | CCP_ABSOLUTE, "/");
-	if(root == NULL)
-		perror("cygwin_conv_path");
-#elif defined(__WIN32__) || defined(__WIN64__)
+#else
 	pod_path_t root = getenv("SYSTEMDRIVE");
+#endif
 #else
 	pod_path_t root = strdup("/");
 #endif

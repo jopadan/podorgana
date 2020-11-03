@@ -1,4 +1,4 @@
-#include "libpodfmt.h"
+#include "libpodfmt/libpodfmt.h"
 
 bool print_usage(int argc, char** argv)
 {
@@ -27,6 +27,8 @@ int main(int argc, char** argv)
 		pod_path_t home = pod_path_system_home();
 		printf("%s\n",root);
 		printf("%s\n",home);
+		free(root);
+		free(home);
 		/*
 		if(!pod_directory_create("/pod/foo", '/'))
 		{

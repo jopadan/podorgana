@@ -4,9 +4,6 @@
 #ifndef __ATFILE_VISIBLE
 #define __ATFILE_VISIBLE 1
 #endif
-#ifndef __POSIX_VISIBLE
-#define __POSIX_VISIBLE 200809
-#endif
 
 #include <sys/cygwin.h>
 #include <string.h>
