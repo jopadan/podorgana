@@ -51,12 +51,9 @@ set(EXAMPLE_SOURCE_FILES
 # libpodfmt library
 add_library( podfmt SHARED ${SOURCE_FILES} ${INCLUDE_FILES} )
 target_include_directories(podfmt PUBLIC
-			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libpodfmt>
 			$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/libpodfmt>
 			)
-
-target_link_libraries( podfmt PUBLIC Msys-2.0 )
-target_link_options( podfmt PUBLIC -L/usr/bin ) 
 
 # podorgana example
 add_executable( podorgana ${EXAMPLE_SOURCE_FILES} ${INCLUDE_FILES} )
@@ -73,4 +70,5 @@ install(TARGETS podfmt podorgana EXPORT ${PROJECT_NAME}Config
 	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/libpodfmt
 	)
 
+install(FILES ${INCLUDE_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/libpodfmt/)
 install(FILES libpodfmt.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig/)

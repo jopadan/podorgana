@@ -48,24 +48,7 @@ bool pod_audit_entry_pod2_print(pod_audit_entry_pod2_t* audit)
 		fprintf(stderr, "ERROR: pod_audit_entry_pod2_print(audit == NULL)!\n");
 		return false;
 	}
-	/*
-	switch(pod_file->audit_trail[i].action)
-	{
-		case POD_AUDIT_ACTION_ADD:
-			pod_file->audit_trail[i].new_data;
-			break;
-		case POD_AUDIT_ACTION_REMOVE:
-			pod_file->audit_trail[i].old_data;
-			break;
-		case POD_AUDIT_ACTION_CHANGE:
-			pod_file->audit_trail[i].old_data; 
-			pod_file->audit_trail[i].new_data;
-			break;
-		default:
-			break;
-		}
-	}
-	*/
+
 	printf("\n%s %s\n%s %s\n%u / %u\n%s / %s\n",
 		audit->user,
 		pod_ctime(&audit->timestamp),
@@ -111,7 +94,7 @@ bool pod_file_pod2_print(pod_file_pod2_t* pod_file)
 		{
 			fprintf(stderr, "ERROR: pod_audit_entry_pod2_print() failed!");
 			pod_file_pod2_destroy(pod_file);
-			return NULL;
+			return false;
 		}
 	}
 	/* print file summary */

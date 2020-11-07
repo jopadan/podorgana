@@ -112,7 +112,7 @@ bool pod_directory_create(pod_string_t path, char separator)
 		return false;
 
 	pod_char_t *path0 = strdup(path);
-	path0[sep - path ] = '\0';
+	path0[sep - path ] = POD_PATH_NULL;
 
 	bool ret = pod_rec_mkdir(path0, separator);
        	free(path0);
@@ -122,14 +122,8 @@ bool pod_directory_create(pod_string_t path, char separator)
 pod_path_t pod_path_system_home()
 {
 #if defined(__WIN32__) || defined(__WIN64__)
-#if defined (__MSYS__) 
-	pod_path_t home = cygwin_create_path(CCP_POSIX_TO_WIN_A | CCP_ABSOLUTE, "/home");
-	if(home == NULL)
-		perror("cygwin_conv_path");
-#else
-	pod_path_t home = calloc(0, POD_SYSTEM_PATH_SIZE);
+	pod_path_t home = calloc(1, POD_SYSTEM_PATH_SIZE);
 	snprintf(home, POD_SYSTEM_PATH_SIZE, "%s%s", getenv("HOMEDRIVE"), getenv("HOMEPATH"));
-#endif
 #else
 	pod_path_t home = strdup("/home");
 #endif
@@ -139,37 +133,148 @@ pod_path_t pod_path_system_home()
 pod_path_t pod_path_system_root()
 {
 #if defined(__WIN32__) || defined(__WIN64__)
-#if defined (__MSYS__)
-	pod_path_t root = cygwin_create_path(CCP_POSIX_TO_WIN_A | CCP_ABSOLUTE, "/");
-	if(root == NULL)
-		perror("cygwin_conv_path");
-#else
-	pod_path_t root = getenv("SYSTEMDRIVE");
-#endif
+	pod_path_t root = calloc(1, POD_SYSTEM_PATH_SIZE);
+	snprintf(root, POD_SYSTEM_PATH_SIZE, "%s%c", getenv("SYSTEMDRIVE"), POD_PATH_SEPARATOR);
 #else
 	pod_path_t root = strdup("/");
 #endif
 	return root;
 }
 
-pod_path_t pod_path_append(pod_path_t a, pod_path_t b)
+pod_char_t pod_path_system_drive()
 {
-	ssize_t size_a = strlen(a);
-	ssize_t size_b = strlen(b);
-	ssize_t size = size_a + size_b + 1;
-	pod_path_t path = calloc(0, size);
-	pod_path_t dst = strncpy(path, a, size_a);
-	strncpy(&dst[strlen(dst)], b, size_b);
-	return dst;
+	return ((WIN32 || WIN64 ) ? *getenv("SYSTEMDRIVE") : '/');
+}
+
+pod_path_t pod_path_posix_to_win32(pod_path_t src, pod_char_t separator, pod_bool_t absolute, pod_char_t drive)
+{
+	if(src == NULL)
+		return NULL;
+
+	absolute = (src[0] == '/') ? true : absolute;
+	pod_number_t start = absolute ? (src[0] == '/' ? 2 : 3) : 0;
+	pod_number_t size = strlen(src) + start + 1;
+	pod_path_t path = calloc(1, size);
+	if(!strncpy(&path[start], src, strlen(src)))
+	{
+		fprintf(stderr, "ERROR: pod_path_posix_to_win32() strncpy() failed");
+		free(path);
+		return NULL;
+	}
+
+	pod_path_t sep = &path[start];
+
+	for(int i = 0; i < size; i++)
+	{
+		if(path[i] == '/')
+		       path[i] = separator;
+	}
+
+	path[size] = POD_PATH_NULL;
+
+	if(absolute)
+	{
+		path[0] = drive;
+		path[1] = ':';
+		path[2] = separator;
+	}
+
+	return &path[0];
+}
+
+bool pod_path_is_posix(pod_path_t path)
+{
+	for(int i = 0; i < strlen(path); i++)
+	{
+		if(path[i] == '/')
+			continue;
+		if(isprint(path[i]) != 0 && path[i] != POD_PATH_SEPARATOR)
+			continue;
+		return false;
+	}
+	return true;
+}
+
+
+bool pod_path_is_win32(pod_path_t path)
+{
+	if(isalpha(path[0]) == 0 || path[1] != ':')
+		return false;
+
+	for(int i = 0; i < strlen(path); i++)
+	{
+		if(path[i] == POD_PATH_SEPARATOR)
+			continue;
+		if(isprint(path[i]) != 0)
+			continue;
+
+		return false;
+	}
+
+	return true;
+}
+
+pod_path_t pod_path_append_win32(pod_path_t a, pod_path_t b)
+{
+	pod_number_t size_a = strlen(a);
+	pod_number_t size_b = strlen(b);
+	pod_number_t size = size_a + size_b + 2;
+	pod_path_t path = calloc(1, size);
+	pod_char_t separator = POD_PATH_SEPARATOR;
+
+	if(!strncpy(path, a, size_a))
+		return NULL;
+
+	pod_number_t start = size_a;
+
+	if(path[start - 1] == separator && b[0] == separator)
+		start--;
+	else if(path[start - 1] != separator && b[0] != separator)
+		path[start++] = separator;
+
+	if(!strncpy(&path[start], b, size_b))
+		return NULL;
+
+	return path;
+}
+
+
+
+
+pod_path_t pod_path_append_posix(pod_path_t a, pod_path_t b)
+{
+	pod_number_t size_a = strlen(a);
+	pod_number_t size_b = strlen(b);
+	pod_number_t size = size_a + size_b + 2;
+	pod_path_t path = calloc(1, size);
+	pod_char_t separator = '/';
+
+	if(!pod_path_is_posix(a) || !pod_path_is_posix(b))
+		return NULL;
+
+	if(!strncpy(path, a, size_a))
+		return NULL;
+
+	pod_number_t start = size_a;
+
+	if(path[start - 1] == separator && b[0] == separator)
+		start--;
+	else if(path[start - 1] != separator && b[0] != separator)
+		path[start++] = separator;
+
+	if(!strncpy(&path[start], b, size_b))
+		return NULL;
+
+	return path;
 }
 
 FILE* pod_fopen_mkdir(pod_string_t path, char* mode)
 {
 	if(path == NULL) { return NULL; }
-	pod_char_t *sep = strrchr(path, POD_PATH_SEPARATOR);
+		pod_char_t *sep = strrchr(path, POD_PATH_SEPARATOR);
 	if(sep) {
 		pod_char_t *path0 = strdup(path);
-		path0[ sep - path ] = '\0';
+		path0[ sep - path ] = POD_PATH_NULL;
 		pod_rec_mkdir(path0, POD_PATH_SEPARATOR);
 		free(path0);
 	}

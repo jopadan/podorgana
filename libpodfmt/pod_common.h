@@ -22,6 +22,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include "ccitt32_crc.h"
+#include <ctype.h>
 
 /* main variable type sizes of POD file formats                                                            */
 typedef uint32_t                             pod_number_t;
@@ -35,7 +36,7 @@ typedef pod_char_t*                          pod_string_t;
 typedef wchar_t*                             pod_wchar_string_t;
 typedef __time32_t                           pod_time_t;
 typedef pod_char_t*                          pod_path_t;
-
+typedef bool                                 pod_bool_t;
 #define POD_NUMBER_SIZE                      sizeof(pod_number_t)          /* length of a numerical entry    */
 #define POD_BYTE_SIZE                        sizeof(pod_byte_t)            /* length of a byte entry         */
 #define POD_CHAR_SIZE                        sizeof(pod_char_t)            /* length of a character entry    */
@@ -47,6 +48,7 @@ typedef pod_char_t*                          pod_path_t;
 #define POD_HEADER_UNKNOWN10C_DEFAULT        0x58585858			   /* default value of unknown10c    */
 #define POD_CHECKSUM_DEFAULT                 0xFFFFFFFF                    /* default seed for CCIT32-CRC    */
 #define POD_PATH_SEPARATOR                   '\\'                          /* default path separator         */
+#define POD_PATH_NULL                        '\0'
 #define POD_SYSTEM_PATH_SIZE                 1024                          /* default system path length     */
 #define POD_UMASK                            0755                          /* default UMASK privileges       */
 pod_string_t pod_ctime(pod_time_t* time32);
@@ -273,7 +275,12 @@ extern bool pod_rec_mkdir(pod_string_t path, char separator);
 extern bool pod_directory_create(pod_string_t path, char separator);
 extern pod_path_t pod_path_system_home();
 extern pod_path_t pod_path_system_root();
-extern pod_path_t pod_path_append(pod_path_t a, pod_path_t b);
+extern pod_char_t pod_path_system_drive();
+extern pod_path_t pod_path_posix_to_win32(pod_path_t src, pod_char_t separator, pod_bool_t absolute, pod_char_t drive);
+extern pod_path_t pod_path_append_posix(pod_path_t a, pod_path_t b);
+extern pod_path_t pod_path_append_win32(pod_path_t a, pod_path_t b);
+extern bool pod_path_is_win32(pod_path_t path);
+extern bool pod_path_is_posix(pod_path_t path);
 
 extern const ssize_t POD_DIR_ENTRY_SIZE[POD_IDENT_TYPE_SIZE];
 extern const ssize_t POD_HEADER_SIZE[POD_IDENT_TYPE_SIZE];
