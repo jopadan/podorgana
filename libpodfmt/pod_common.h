@@ -4,8 +4,16 @@
 #ifndef __ATFILE_VISIBLE
 #define __ATFILE_VISIBLE 1
 #endif
-
+#ifndef __USE_GNU
+#define __USE_GNU 1
+#endif
+#ifdef __WIN32__
+#ifdef __MSYS__
 #include <sys/cygwin.h>
+#elif defined __CYGWIN__
+#include <sys/cygwin.h>
+#endif
+#endif
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +31,7 @@
 #include <sys/stat.h>
 #include "ccitt32_crc.h"
 #include <ctype.h>
+#include <bsd/timeconv.h>
 
 /* main variable type sizes of POD file formats                                                            */
 typedef uint32_t                             pod_number_t;
@@ -34,7 +43,7 @@ typedef int8_t                               pod_char_t;
 typedef wchar_t                              pod_wchar_t;
 typedef pod_char_t*                          pod_string_t;
 typedef wchar_t*                             pod_wchar_string_t;
-typedef __time32_t                           pod_time_t;
+typedef int32_t                              pod_time_t;
 typedef pod_char_t*                          pod_path_t;
 typedef bool                                 pod_bool_t;
 #define POD_NUMBER_SIZE                      sizeof(pod_number_t)          /* length of a numerical entry    */

@@ -63,15 +63,9 @@ pod_string_t pod_type_to_file_ext(int pod_type)
 
 pod_string_t pod_ctime(pod_time_t* time32)
 {
-	struct tm tm;
-	errno_t ret = _localtime32_s(&tm, time32);
-	if(ret != 0)
-	{
-		fprintf(stderr, "%s\n", strerror(ret));
-		return 0;
-	}
-	__time64_t time64 = _mktime64(&tm);
-	char* str = _ctime64(&time64);
+	time_t time = _time32_to_time(*time32);
+
+	char* str = ctime(&time);
 	str[strcspn(str, "\n")] = '\0';
 
 	return  str;
@@ -93,7 +87,7 @@ bool pod_rec_mkdir(pod_string_t path, char separator)
 		*sep = separator;
 	}
 
-	if(mkdir(path) && errno != EEXIST)
+	if(mkdir(path, ACCESSPERMS) && errno != EEXIST)
 	{
 		fprintf(stderr,"ERROR: mkdir(%s): %s\n", path, strerror(errno));
 		return false;
@@ -143,7 +137,11 @@ pod_path_t pod_path_system_root()
 
 pod_char_t pod_path_system_drive()
 {
-	return ((WIN32 || WIN64 ) ? *getenv("SYSTEMDRIVE") : '/');
+#if defined(__WIN32__) || defined(__WIN64__)
+	return (WIN32 || WIN64 ) ? *getenv("SYSTEMDRIVE");
+#else
+	return '/';
+#endif
 }
 
 pod_path_t pod_path_posix_to_win32(pod_path_t src, pod_char_t separator, pod_bool_t absolute, pod_char_t drive)

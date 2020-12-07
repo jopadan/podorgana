@@ -54,6 +54,7 @@ target_include_directories(podfmt PUBLIC
 			$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libpodfmt>
 			$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/libpodfmt>
 			)
+target_link_libraries( podfmt PUBLIC bsd )
 
 # podorgana example
 add_executable( podorgana ${EXAMPLE_SOURCE_FILES} ${INCLUDE_FILES} )

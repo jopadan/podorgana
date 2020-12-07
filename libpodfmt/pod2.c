@@ -75,7 +75,7 @@ bool pod_file_pod2_print(pod_file_pod2_t* pod_file)
 	{
 		pod_entry_pod2_t* entry = &pod_file->entries[i];
 		pod_char_t* name = pod_file->path_data + entry->path_offset;
-		printf("%10.u %10.u %.8X/%.8X %10.u %s %s %10.u\n",
+		printf("%10u %10u %.8X/%.8X %10u %s %s %10u\n",
 		       	i,
 			entry->offset,
 			entry->checksum,
@@ -98,7 +98,7 @@ bool pod_file_pod2_print(pod_file_pod2_t* pod_file)
 		}
 	}
 	/* print file summary */
-	printf("\nSummary:\nfile checksum      : %.8X\nsize               : %u\nfilename           : %s\nformat             : %s\ncomment            : %s\ndata checksum      : %.8X/%.8X\nfile entries       : %u\naudit entries      : %u\n",
+	printf("\nSummary:\nfile checksum      : %.8X\nsize               : %lu\nfilename           : %s\nformat             : %s\ncomment            : %s\ndata checksum      : %.8X/%.8X\nfile entries       : %u\naudit entries      : %u\n",
 		pod_file->checksum,
 		pod_file->size,
 		pod_file->filename,
@@ -164,7 +164,7 @@ pod_file_pod2_t* pod_file_pod2_create(pod_string_t filename)
 
 	if(fread(pod_file->data, POD_BYTE_SIZE, pod_file->size, file) != pod_file->size * POD_BYTE_SIZE)
 	{
-		fprintf(stderr, "ERROR: Could not read file %s!\n");
+		fprintf(stderr, "ERROR: Could not read file %s!\n", filename);
 		fclose(file);
 		pod_file_pod2_destroy(pod_file);
 		return NULL;
