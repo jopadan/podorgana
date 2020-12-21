@@ -11,10 +11,10 @@ int main(int argc, char** argv)
 {
 	if(argc > 1)
 	{
-		pod_path_t path = pod_path_posix_to_win32(argv[1], POD_PATH_SEPARATOR, false, pod_path_system_drive());
+		pod_path_t path = pod_path_to_system_path(argv[1], POD_PATH_SEPARATOR);
 		if(path == NULL)
 			fprintf(stderr, "ERROR: path == NULL!");
-		printf("%s\n", path);
+		printf("native path: %s\n", path);
 		pod_file_pod2_t* pod2 = pod_file_pod2_create(path);
 		if(pod2 == NULL)
 		{
