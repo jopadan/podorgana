@@ -11,11 +11,12 @@ int main(int argc, char** argv)
 {
 	if(argc > 1)
 	{
-		pod_path_t path = pod_path_to_system_path(argv[1], POD_PATH_SEPARATOR);
-		if(path == NULL)
+		pod_path_t src = strdup(argv[1]);
+		if(src == NULL)
 			fprintf(stderr, "ERROR: path == NULL!");
-		printf("native path: %s\n", path);
-		pod_file_pod2_t* pod2 = pod_file_pod2_create(path);
+		printf("native path: %s\n", src);
+
+		pod_file_pod2_t* pod2 = pod_file_pod2_create(src);
 		if(pod2 == NULL)
 		{
 			fprintf(stderr, "ERROR: cannot create pod2 file!\n");
@@ -24,23 +25,26 @@ int main(int argc, char** argv)
 
 		pod_file_pod2_print(pod2);
 		
-		/*	
-		if(!pod_file_pod2_write(pod2, "foo.pod"))
+
+		if(!pod_file_pod2_write(pod2, "out.pod"))
 		{
-			fprintf(stderr, "ERROR: cannot write foo.pod!\n");
+			fprintf(stderr, "ERROR: cannot write out.pod!\n");
 			pod_file_pod2_destroy(pod2);
 			exit(EXIT_FAILURE);
 		}
+
 		
-		
-		if(!pod_directory_create(path, POD_PATH_SEPARATOR))
+		pod_path_t dst = pod_path_append_posix(argv[2], pod_path_trim(src));
+		printf("dst: %s trimmed: %s\n", src, dst);
+		if(!pod_file_pod2_extract(pod2, dst, false))
 		{
-			fprintf(stderr, "ERROR: pod_directory_failed!\n");
+			fprintf(stderr, "ERROR: pod_file_pod2_extract(%s) failed!\n", dst);
+			pod_file_pod2_destroy(pod2);
+			exit(EXIT_FAILURE);
 		}
-		pod_file_pod2_extract(pod2, "/pod/foo");
-		*/
+
 		pod_file_pod2_destroy(pod2);
-		free(path);
+		free(src);
 	}
 	else
 	{
