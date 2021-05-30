@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "libpodfmt/libpodfmt.h"
 
 
@@ -10,7 +13,7 @@ bool print_usage(int argc, char** argv)
 int main(int argc, char** argv)
 {
 	pod_file_type_t pod = { NULL };
-	int exit = EXIT_SUCCESS;
+	int exit_code = EXIT_SUCCESS;
 
 	if(argc > 1)
 	{
@@ -26,7 +29,7 @@ int main(int argc, char** argv)
 				if(pod.pod1 == NULL)
 				{
 					fprintf(stderr, "ERROR: cannot create pod1 file!\n");
-					exit = EXIT_FAILURE;
+					exit_code = EXIT_FAILURE;
 				}
 				pod_file_pod1_print(pod.pod1);
 				pod_file_pod1_destroy(pod.pod1);
@@ -36,7 +39,7 @@ int main(int argc, char** argv)
 				if(pod.pod2 == NULL)
 				{
 					fprintf(stderr, "ERROR: cannot create pod2 file!\n");
-					exit = EXIT_FAILURE;
+					exit_code = EXIT_FAILURE;
 				}
 				pod_file_pod2_print(pod.pod2);
 				pod_file_pod2_destroy(pod.pod2);
@@ -47,7 +50,7 @@ int main(int argc, char** argv)
 				if(pod.pod3 == NULL)
 				{
 					fprintf(stderr, "ERROR: cannot create pod3 file!\n");
-					exit = EXIT_FAILURE;
+					exit_code = EXIT_FAILURE;
 				}
 				pod_file_pod3_print(pod.pod3);
 				pod_file_pod3_destroy(pod.pod3);
@@ -58,7 +61,7 @@ int main(int argc, char** argv)
 				if(pod.pod4 == NULL)
 				{
 					fprintf(stderr, "ERROR: cannot create pod4 file!\n");
-					exit = EXIT_FAILURE;
+					exit_code = EXIT_FAILURE;
 				}
 
 				pod_file_pod4_print(pod.pod4);
@@ -70,7 +73,7 @@ int main(int argc, char** argv)
 				if(pod.pod5 == NULL)
 				{
 					fprintf(stderr, "ERROR: cannot create pod5 file!\n");
-					exit = EXIT_FAILURE;
+					exit_code = EXIT_FAILURE;
 				}
 				pod_file_pod5_print(pod.pod5);
 				pod_file_pod5_destroy(pod.pod5);
@@ -81,7 +84,7 @@ int main(int argc, char** argv)
 				if(pod.pod6 == NULL)
 				{
 					fprintf(stderr, "ERROR: cannot create pod6 file!\n");
-					exit = EXIT_FAILURE;
+					exit_code = EXIT_FAILURE;
 				}
 				pod_file_pod6_print(pod.pod6);
 				pod_file_pod6_destroy(pod.pod6);
@@ -92,7 +95,7 @@ int main(int argc, char** argv)
 				if(pod.epd == NULL)
 				{
 					fprintf(stderr, "ERROR: cannot create epd file!\n");
-					exit = EXIT_FAILURE;
+					exit_code = EXIT_FAILURE;
 				}
 
 				pod_file_epd_print(pod.epd);
@@ -100,7 +103,7 @@ int main(int argc, char** argv)
 				break;
 			default:
 				fprintf(stderr, "ERROR: unknown file format!\n");
-				exit = EXIT_FAILURE;
+				exit_code = EXIT_FAILURE;
 				break;
 		}
 		
@@ -127,6 +130,6 @@ int main(int argc, char** argv)
 	else
 		print_usage(argc,argv);
 
-	exit(exit);
+	exit(exit_code);
 }
 
