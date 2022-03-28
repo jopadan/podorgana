@@ -24,15 +24,20 @@ int main(int argc, char** argv)
 		pod_type = pod_type_peek(src);
 		printf("native path: %s type: %d\n", src, pod_type);
 		pod = pod_file_create(src);
+		pod_type = pod_file_typeid(pod);
+		printf("native path: %s type: %d\n", src, pod_type);
 		if(pod.pod1 == NULL)
 		{
 			fprintf(stderr, "ERROR: cannot create POD file!\n");
 			exit_code = EXIT_FAILURE;
-		}
 
-		pod_file_print(pod);
-		pod_file_delete(pod);
-/*
+		}
+		else
+		{
+			pod_file_print(pod);
+			pod_file_delete(pod);
+		}
+/*		
 		if(!pod_file_pod3_write(pod3, "out.pod"))
 		{
 			fprintf(stderr, "ERROR: cannot write out.pod!\n");
